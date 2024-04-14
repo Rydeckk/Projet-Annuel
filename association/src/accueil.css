@@ -1,5 +1,3 @@
-/* accueil.css */
-
 .accueil {
   font-family: Arial, sans-serif;
   max-width: 1200px;
@@ -84,4 +82,63 @@ footer {
 
 footer p {
   margin: 0;
+}
+
+button.inscription {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 1rem;
+  margin: 0 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+button.inscription:hover {
+  background-color: #45a049;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+form div {
+  margin-bottom: 20px;
+}
+
+label {
+  font-weight: bold;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"] {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+}
+
+button[type="submit"] {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 1rem;
+  margin: 10px 0;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+button[type="submit"]:hover {
+  background-color: #45a049;
 }
