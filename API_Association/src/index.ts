@@ -1,7 +1,6 @@
 import express from "express";
 import { initRoutes } from "./handlers/routes";
 import { AppDataSource } from "./database/database";
-import { UserHandler } from "./handlers/user";
 import { swaggerDocs } from "./swagger/swagger";
 
 
