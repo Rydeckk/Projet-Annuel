@@ -2,10 +2,11 @@ FROM node:lts
 
 WORKDIR /app
 
-COPY . /app
+COPY ./src /app/src
+COPY ./package.json /app
+COPY ./tsconfig.json /app
+COPY ./.env /app/
 
-RUN npm i bcrypt joi jsonwebtoken moment mysql2 swagger-jsdoc swagger-ui-express typeorm ts-node
+RUN npm install
 
-EXPOSE 8080
-
-CMD [ "npm", "run", "start"]
+CMD npm run start
