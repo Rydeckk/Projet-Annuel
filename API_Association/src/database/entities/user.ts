@@ -7,6 +7,7 @@ import { CompteTransaction } from "./transaction"
 import { Adhesion } from "./adhesion"
 import { Evenement } from "./evenement"
 import { Reponse } from "./reponse"
+import { Planning } from "./planning"
 
 @Entity()
 export class User {
@@ -58,9 +59,12 @@ export class User {
     @ManyToMany(() => Reponse, reponse => reponse.voters)
     votes: Reponse[]
 
+    @ManyToMany(() => Planning, planning => planning.users)
+    planning: Planning[]
+
     constructor(id: number, email: string, password: string, firstName: string, lastName: string, address: string, role: Role, association: Association , 
         adhesion: Adhesion, createdAt: Date, tokens: Token[], transactions: CompteTransaction[], materiels: Materiel[], applicants: Reponse[] ,
-        evenements: Evenement[], votes: Reponse[]) {
+        evenements: Evenement[], votes: Reponse[], planning: Planning[]) {
             this.id = id,
             this.email = email,
             this.password = password,
@@ -76,6 +80,7 @@ export class User {
             this.materiels = materiels,
             this.applicants = applicants,
             this.evenements = evenements,
-            this.votes = votes
+            this.votes = votes,
+            this.planning = planning
     }
 }

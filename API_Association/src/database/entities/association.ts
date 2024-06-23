@@ -1,4 +1,4 @@
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./user";
 import { Theme } from "./theme";
 import { Local } from "./local";
@@ -9,6 +9,7 @@ import { GED } from "./ged";
 import { Evenement } from "./evenement";
 import { Role } from "./role";
 import { Vote } from "./vote";
+import { Planning } from "./planning";
 
 @Entity({name: "Association"})
 export class Association {
@@ -48,6 +49,9 @@ export class Association {
     @OneToMany(() => Vote, vote => vote.association)
     votes: Vote[]
 
+    @OneToMany(() => Planning, planning => planning.association)
+    planning: Planning[]
+
     @ManyToOne(() => Theme, theme => theme.associations)
     theme: Theme
 
@@ -55,7 +59,7 @@ export class Association {
     ged: GED
 
     constructor(id: number, name: string, description: string, domainName: string, users: User[], materiels: Materiel[], 
-        transactions: CompteTransaction[], typeAdhesions: TypeAdhesion[], evenements: Evenement[] , roles: Role[], locaux: Local[], votes: Vote[], theme: Theme, ged: GED ) {
+        transactions: CompteTransaction[], typeAdhesions: TypeAdhesion[], evenements: Evenement[] , roles: Role[], locaux: Local[], votes: Vote[], planning: Planning[], theme: Theme, ged: GED ) {
         this.id = id,
         this.name = name,
         this.description = description,
@@ -68,6 +72,7 @@ export class Association {
         this.roles = roles,
         this.locaux = locaux,
         this.votes = votes,
+        this.planning = planning,
         this.theme = theme,
         this.ged = ged
     }

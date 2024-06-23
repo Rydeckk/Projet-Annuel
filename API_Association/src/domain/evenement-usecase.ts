@@ -89,8 +89,8 @@ export class EvenementUseCase {
             eventFound.endDate = updateEvent.endDate
         }
 
-        const updatedAsso = await repoEvent.save(eventFound)
-        return updatedAsso
+        const updatedEvent = await repoEvent.save(eventFound)
+        return updatedEvent
     }
 
     async deleteEvenement(id: number, asso?: Association):Promise <Evenement | null> {

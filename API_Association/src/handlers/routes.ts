@@ -43,6 +43,10 @@ import { createDonValidation } from "./validators/don-validator";
 import { createDossierValidation, getDossierValidation, getListDossierValidation, updateDossierValidation } from "./validators/dossier-validator"
 import { DossierUseCase } from "../domain/dossier-usecase";
 import { Dossier } from "../database/entities/dossier";
+import { createPlanningValidation, getPlanningsValidation, getPlanningValidation, updatePlanningValidation } from "./validators/planning-validator";
+import { Planning } from "../database/entities/planning";
+import { PlanningUseCase } from "../domain/planning-usecase";
+import { User } from "../database/entities/user";
 
 export const initRoutes = (app: express.Express) => {
 
@@ -2163,6 +2167,150 @@ export const initRoutes = (app: express.Express) => {
 
     })
     //#endregion
+
+    //#region Routes Planning
+    app.post("/association/mine/planning", authMiddlewareAdmin, async (req: Request, res: Response) => {
+        const validation = createPlanningValidation.validate(req.body)
+
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+            return
+        }
+
+        const createPlanningRequest = validation.value
+
+        const userConnectedFound = await getConnectedUser(req.user.userId, AppDataSource)
+
+        try {
+            const createdPlanning = await AppDataSource.getRepository(Planning).save({...createPlanningRequest, association: userConnectedFound?.association})
+            createdPlanning.users = []
+            const userUseCase = new UserUseCase(AppDataSource)
+            createPlanningRequest.listUser?.forEach(async userId => {
+                const userFound = await userUseCase.getUser(userId,userConnectedFound?.association,false)
+                if(userFound !== null) {
+                    createdPlanning.users.push(userFound)
+                }
+            })
+            const createdPlanningFinal = await AppDataSource.getRepository(Planning).save(createdPlanning)
+
+            res.status(200).send(createdPlanningFinal)
+        } catch (error) {
+            console.log(error)
+            res.status(500).send({ error: "Internal error" })
+        }
+    })
+
+    app.get("/association/mine/planning/:id", authMiddlewareMember, async (req:Request, res:Response) => {
+        const validation = getPlanningValidation.validate(req.params)
+
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+            return
+        }
+
+        const getPlanningRequest = validation.value
+
+        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+
+        try {
+            const planningUseCase = new PlanningUseCase(AppDataSource)
+            const planningFound = await planningUseCase.getPlanning(getPlanningRequest.id,userFound?.association)
+            if (planningFound === null) {
+                res.status(404).send({"error": `Planning ${getPlanningRequest.id} not found`})
+                return
+            }
+            res.status(200).send(planningFound)
+
+        } catch (error) {
+            console.log(error)
+            res.status(500).send({ error: "Internal error" })
+        }
+    })
+
+    app.get("/association/mine/planning", authMiddlewareMember, async (req: Request, res: Response) => {
+        const validation = getPlanningsValidation.validate(req.query)
+
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+            return
+        }
+
+        const getPlanningsRequest = validation.value
+
+        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+
+        let limit = 20
+        if (getPlanningsRequest.limit) {
+            limit = getPlanningsRequest.limit
+        }
+        const page = getPlanningsRequest.page ?? 1
+
+        try {
+            const planningUseCase = new PlanningUseCase(AppDataSource)
+            const planningFound = await planningUseCase.getListPlanning({...getPlanningsRequest, page, limit, associationId: userFound?.association.id})
+            res.status(200).send(planningFound)
+
+        } catch (error) {
+            res.status(500).send({ error: "Internal error" })
+        }
+
+    })
+
+    app.patch("/association/mine/planning/:id", authMiddlewareAdmin ,async (req: Request, res: Response) => {
+        const validation = updatePlanningValidation.validate({...req.params,...req.body})
+
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+            return
+        }
+
+        const updatePlanningRequest = validation.value
+
+        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+
+        try {
+            const planningUseCase = new PlanningUseCase(AppDataSource)
+            const planningFound = await planningUseCase.updatePlanning(updatePlanningRequest.id,{...updatePlanningRequest},userFound?.association)
+            if (planningFound === null) {
+                res.status(404).send({"error": `Planning ${updatePlanningRequest.id} not found`})
+                return
+            }
+            res.status(200).send(planningFound)
+
+        } catch (error) {
+            console.log(error)
+            res.status(500).send({ error: "Internal error" })
+        }
+    })
+
+    app.delete("/association/mine/planning/:id", authMiddlewareAdmin ,async (req: Request, res: Response) => {
+        const validation = getPlanningValidation.validate(req.params)
+
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+            return
+        }
+
+        const deletePlanningRequest = validation.value
+
+        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+
+        try {
+            const planningUseCase = new PlanningUseCase(AppDataSource)
+            const planningFound = await planningUseCase.deletePlanning(deletePlanningRequest.id,userFound?.association)
+            if (planningFound === null) {
+                res.status(404).send({"error": `Planning ${deletePlanningRequest.id} not found`})
+                return
+            }
+            res.status(200).send(planningFound)
+
+        } catch (error) {
+            console.log(error)
+            res.status(500).send({ error: "Internal error" })
+        }
+    })
+    //#endregion
+
 
     initRoutesSA(app)
     UserHandler(app)
