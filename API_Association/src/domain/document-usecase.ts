@@ -15,7 +15,6 @@ export interface ListDocumentsFilter {
 
 export interface UpdateDocumentGEDParams {
     name?: string,
-    path?: string,
     folderId?: number
 }
 
@@ -66,10 +65,6 @@ export class DocumentGEDUseCase {
 
         if(documentParams.name !== undefined) {
             documentFound.name = documentParams.name
-        }
-
-        if(documentParams.path !== undefined) {
-            documentFound.path = documentParams.path
         }
 
         if(documentParams.folderId !== undefined) {

@@ -2,13 +2,11 @@ import Joi from "joi"
 
 export interface CreateDocumentRequest {
     name: string,
-    path: string,
     folderId?: number
 }
 
 export const createDocumentValidation = Joi.object<CreateDocumentRequest>({
     name: Joi.string().required(),
-    path: Joi.string().required(),
     folderId: Joi.number().optional()
 })
 
@@ -45,7 +43,6 @@ export const getDocumentValidation = Joi.object<GetDocumentRequest>({
 export interface UpdateDocumentRequest {
     id: number,
     name?: string,
-    path?: string,
     folderId?: number
 }
 
@@ -53,8 +50,6 @@ export const updateDocumentValidation = Joi.object<UpdateDocumentRequest>({
     id: Joi.number()
         .required(),
     name: Joi.string()
-        .optional(),
-    path: Joi.string()
         .optional(),
     folderId: Joi.number()
         .optional()

@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Reponse } from "./reponse";
 import { Association } from "./association";
 
@@ -22,12 +22,21 @@ export class Vote {
     @ManyToOne(() => Association, association => association.votes)
     association: Association
 
-    constructor(id: number, name: string, beginDate: Date, endDate: Date, reponses: Reponse[], association: Association) {
+    @OneToOne(() => Vote, vote => vote.childVote)
+    @JoinColumn()
+    parentVote: Vote
+
+    @OneToOne(() => Vote, vote => vote.parentVote)
+    childVote: Vote
+
+    constructor(id: number, name: string, beginDate: Date, endDate: Date, reponses: Reponse[], association: Association, parentVote: Vote, childVote: Vote) {
         this.id = id,
         this.name = name,
         this.beginDate = beginDate,
         this.endDate = endDate,
         this.reponses = reponses,
-        this.association = association
+        this.association = association,
+        this.parentVote = parentVote,
+        this.childVote = childVote
     }
 }

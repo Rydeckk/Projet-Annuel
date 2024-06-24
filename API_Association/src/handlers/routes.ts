@@ -1112,7 +1112,21 @@ export const initRoutes = (app: express.Express) => {
         try {
             const createdVote = await AppDataSource.getRepository(Vote).save({...createVoteRequest,association: userFound?.association})
 
-            res.status(200).send(createdVote)
+            if(createVoteRequest.voteIdParent !== undefined) {
+                const voteParentFound = await AppDataSource.getRepository(Vote).findOneBy({id: createVoteRequest.voteIdParent, association: userFound?.association})
+                if(!voteParentFound) {
+                    res.status(404).send({error : `Vote ${createVoteRequest.voteIdParent} not found`})
+                    return
+                }
+    
+                const createdVoteFinal = await AppDataSource.getRepository(Vote).save({...createdVote,parentVote: voteParentFound})
+
+                res.status(200).send(createdVoteFinal)
+            }
+
+            if(createVoteRequest.voteIdParent === undefined) {
+                res.status(200).send(createdVote)
+            }
         } catch (error) {
             console.log(error)
             res.status(500).send({ error: "Internal error" })

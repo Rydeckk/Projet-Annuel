@@ -10,11 +10,14 @@ export class Dossier {
     @Column()
     name: string
 
-    @Column()
-    path: string
-
     @ManyToOne(() => GED, ged => ged.documents)
     ged: GED
+
+    @ManyToOne(() => Dossier, dossier => dossier.folders)
+    parentFolder: Dossier
+
+    @OneToMany(() => Dossier, dossiers => dossiers.parentFolder)
+    folders: Dossier[]
 
     @OneToMany(() => DocumentGED, document => document.folder)
     files: DocumentGED[]
@@ -22,11 +25,12 @@ export class Dossier {
     @CreateDateColumn({type:"datetime"})
     addedDate: Date
 
-    constructor(id: number, name: string, path: string, ged: GED, files: DocumentGED[], addedDate: Date) {
+    constructor(id: number, name: string, ged: GED, parentFolder: Dossier, folders: Dossier[], files: DocumentGED[], addedDate: Date) {
         this.id = id,
         this.name = name,
-        this.path = path,
         this.ged = ged,
+        this.parentFolder = parentFolder,
+        this.folders = folders,
         this.files = files,
         this.addedDate = addedDate
     }

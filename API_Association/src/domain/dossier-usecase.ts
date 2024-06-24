@@ -11,8 +11,7 @@ export interface ListDossiersFilter {
 }
 
 export interface UpdateDossierParams {
-    name?: string,
-    path?: string
+    name?: string
 }
 
 export class DossierUseCase {
@@ -57,10 +56,6 @@ export class DossierUseCase {
 
         if(dossierParams.name !== undefined) {
             dossierFound.name = dossierParams.name
-        }
-
-        if(dossierParams.path !== undefined) {
-            dossierFound.path = dossierParams.path
         }
 
         const updatedDossier = await repoDossier.save(dossierFound)

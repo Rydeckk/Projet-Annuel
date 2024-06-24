@@ -1,13 +1,11 @@
 import Joi from "joi"
 
 export interface CreateDossierRequest {
-    name: string,
-    path: string
+    name: string
 }
 
 export const createDossierValidation = Joi.object<CreateDossierRequest>({
-    name: Joi.string().required(),
-    path: Joi.string().required()
+    name: Joi.string().required()
 })
 
 export interface GetDossierRequest {
@@ -42,16 +40,13 @@ export const getDossierValidation = Joi.object<GetDossierRequest>({
 
 export interface UpdateDossierRequest {
     id: number,
-    name?: string,
-    path?: string
+    name?: string
 }
 
 export const updateDossierValidation = Joi.object<UpdateDossierRequest>({
     id: Joi.number()
         .required(),
     name: Joi.string()
-        .optional(),
-    path: Joi.string()
         .optional()
 })
 

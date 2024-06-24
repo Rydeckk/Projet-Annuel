@@ -10,9 +10,6 @@ export class DocumentGED {
     @Column()
     name: string
 
-    @Column()
-    path: string
-
     @ManyToOne(() => Dossier, dossier => dossier.files)
     folder: Dossier
 
@@ -22,10 +19,9 @@ export class DocumentGED {
     @CreateDateColumn({type:"datetime"})
     addedDate: Date
 
-    constructor(id: number, name: string, path: string, folder: Dossier, isFolder: boolean, ged: GED, addedDate: Date) {
+    constructor(id: number, name: string, folder: Dossier, ged: GED, addedDate: Date) {
         this.id = id,
         this.name = name,
-        this.path = path,
         this.folder = folder,
         this.ged = ged,
         this.addedDate = addedDate

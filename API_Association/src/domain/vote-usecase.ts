@@ -5,7 +5,8 @@ import { Association } from "../database/entities/association";
 export interface UpdateVoteParams {
     name?: string,
     beginDate?: Date,
-    endDate?: Date
+    endDate?: Date,
+    voteIdParent?: number
 }
 
 export interface ListVoteFilter {
@@ -13,6 +14,7 @@ export interface ListVoteFilter {
     limit: number,
     beginDate?: Date,
     endDate?: Date,
+    voteIdParent?: number,
     associationId?: number
 }
 
@@ -21,7 +23,7 @@ export class VoteUseCase {
 
     async getVote(id: number, asso?: Association): Promise <Vote | null> {
         const repoVote = this.db.getRepository(Vote)
-        const voteFound = await repoVote.findOne({where: {id: id,association: asso}, relations: ["association"]})
+        const voteFound = await repoVote.findOne({where: {id: id,association: asso}, relations: ["association","parentVote"]})
         
         if(voteFound === null) return null
 
@@ -31,6 +33,7 @@ export class VoteUseCase {
     async getListVote(voteFilter: ListVoteFilter): Promise <{ Votes: Vote[]}> {
         const query = this.db.createQueryBuilder(Vote, 'vote')
         query.innerJoin("vote.association","asso")
+        query.innerJoin("vote.parentVote","pVote")
         query.skip((voteFilter.page - 1) * voteFilter.limit)
         query.take(voteFilter.limit)
 
@@ -40,6 +43,10 @@ export class VoteUseCase {
 
         if(voteFilter.endDate !== undefined) {
             query.andWhere("Vote.endDate <= :endDate", {endDate: voteFilter.endDate})
+        }
+
+        if(voteFilter.voteIdParent !== undefined) {
+            query.andWhere("pVote.id = :voteIdParent", {voteIdParent: voteFilter.voteIdParent})
         }
 
         if(voteFilter.associationId !== undefined) {
@@ -67,6 +74,13 @@ export class VoteUseCase {
 
         if(updateVote.endDate !== undefined) {
             voteFound.endDate = updateVote.endDate
+        }
+
+        if(updateVote.voteIdParent !== undefined) {
+            const parentVoteFound = await this.db.getRepository(Vote).findOneBy({id: updateVote.voteIdParent, association: asso})
+            if(parentVoteFound) {
+                voteFound.parentVote = parentVoteFound
+            }
         }
 
         const updatedAsso = await repoVote.save(voteFound)
