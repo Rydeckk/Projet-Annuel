@@ -2,15 +2,19 @@ import Joi from "joi"
 
 export interface CreatePlanningRequest {
     title: string
-    beginDate: Date,
-    endDate: Date,
+    date: Date,
+    start_time: string,
+    end_time: string
     listUser?: Array<number>
 }
 
+export const timeRegex = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
+
 export const createPlanningValidation = Joi.object<CreatePlanningRequest>({
     title: Joi.string().required(),
-    beginDate: Joi.date().iso().required(),
-    endDate: Joi.date().iso().required(),
+    date: Joi.date().iso().required(),
+    start_time: Joi.string().pattern(timeRegex).required(),
+    end_time: Joi.string().pattern(timeRegex).required(),
     listUser: Joi.array().items(Joi.number()).optional()
 })
 
@@ -25,31 +29,35 @@ export const getPlanningValidation = Joi.object<GetPlanningRequest>({
 export interface UpdatePlanningValidation {
     id: number,
     title?: string,
-    beginDate?: Date,
-    endDate?: Date,
+    date?: Date,
+    start_time?: string,
+    end_time?: string
     listUser?: Array<number>
 }
 
 export const updatePlanningValidation = Joi.object<UpdatePlanningValidation>({
     id: Joi.number().required(),
     title: Joi.string().optional(),
-    beginDate: Joi.date().iso().optional(),
-    endDate: Joi.date().iso().optional(),
+    date: Joi.date().iso().optional(),
+    start_time: Joi.string().pattern(timeRegex).optional(),
+    end_time: Joi.string().pattern(timeRegex).optional(),
     listUser: Joi.array().items(Joi.number()).optional()
 })
 
 export interface GetPlanningsRequest {
     page?: number,
     limit?: number,
-    beginDate?: Date,
-    endDate?: Date,
+    date?: Date,
+    start_time?: string,
+    end_time?: string
     listUser?: Array<number>
 }
 
 export const getPlanningsValidation = Joi.object<GetPlanningsRequest>({
     page: Joi.number().min(1).optional(),
     limit: Joi.number().min(1).optional(),
-    beginDate: Joi.date().iso().optional(),
-    endDate: Joi.date().iso().optional(),
+    date: Joi.date().iso().optional(),
+    start_time: Joi.string().pattern(timeRegex).optional(),
+    end_time: Joi.string().pattern(timeRegex).optional(),
     listUser: Joi.array().items(Joi.number()).optional()
 })

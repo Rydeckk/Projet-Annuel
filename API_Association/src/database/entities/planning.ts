@@ -10,11 +10,14 @@ export class Planning {
     @Column()
     title: string
 
-    @Column({type: "datetime"})
-    beginDate: Date
+    @Column({type: "date"})
+    date: Date
 
-    @Column({type: "datetime"})
-    endDate: Date
+    @Column({type: "time"})
+    start_time: string
+
+    @Column({type: "time"})
+    end_time: string
 
     @ManyToOne(() => Association, association => association.planning)
     association: Association
@@ -23,11 +26,12 @@ export class Planning {
     @JoinTable({name: "Taches_membre"})
     users: User[]
 
-    constructor(id: number, title: string, beginDate: Date, endDate: Date, association: Association, users: User[]) {
+    constructor(id: number, title: string, date: Date, start_time: string, end_time: string, association: Association, users: User[]) {
         this.id = id,
         this.title = title,
-        this.beginDate = beginDate,
-        this.endDate = endDate,
+        this.date = date,
+        this.start_time = start_time,
+        this.end_time = end_time,
         this.association = association,
         this.users = users
     }

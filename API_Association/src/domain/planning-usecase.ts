@@ -5,16 +5,18 @@ import { User } from "../database/entities/user";
 
 export interface UpdatePlanningParams {
     title?: string,
-    beginDate?: Date,
-    endDate?: Date,
+    date?: Date,
+    start_time?: string,
+    end_time?: string
     listUser?: Array<number>
 }
 
 export interface ListPlanningFilter {
     page: number,
     limit: number,
-    beginDate?: Date,
-    endDate?: Date,
+    date?: Date,
+    start_time?: string,
+    end_time?: string
     listUser?: Array<number>,
     associationId?: number
 }
@@ -34,16 +36,20 @@ export class PlanningUseCase {
     async getListPlanning(planningFilter: ListPlanningFilter): Promise <{ plannings: Planning[]}> {
         const query = this.db.createQueryBuilder(Planning, 'planning')
         query.innerJoin("planning.association","asso")
-        query.innerJoin("planning.users","users")
+        query.innerJoinAndSelect("planning.users","users")
         query.skip((planningFilter.page - 1) * planningFilter.limit)
         query.take(planningFilter.limit)
 
-        if(planningFilter.beginDate !== undefined) {
-            query.andWhere("planning.beginDate >= :beginDate", {beginDate: planningFilter.beginDate})
+        if(planningFilter.date !== undefined) {
+            query.andWhere("planning.date = :date", {date: planningFilter.date.toISOString()})
         }
 
-        if(planningFilter.endDate !== undefined) {
-            query.andWhere("planning.endDate <= :endDate", {endDate: planningFilter.endDate})
+        if(planningFilter.start_time !== undefined) {
+            query.andWhere("planning.start_time >= :start_time", {start_time: planningFilter.start_time})
+        }
+
+        if(planningFilter.end_time !== undefined) {
+            query.andWhere("planning.end_time <= :end_time", {end_time: planningFilter.end_time})
         }
 
         if(planningFilter.listUser !== undefined) {
@@ -69,12 +75,16 @@ export class PlanningUseCase {
             planningFound.title = updatePlanning.title
         }
 
-        if(updatePlanning.beginDate !== undefined) {
-            planningFound.beginDate = updatePlanning.beginDate
+        if(updatePlanning.date !== undefined) {
+            planningFound.date = updatePlanning.date
         }
 
-        if(updatePlanning.endDate !== undefined) {
-            planningFound.endDate = updatePlanning.endDate
+        if(updatePlanning.start_time !== undefined) {
+            planningFound.start_time = updatePlanning.start_time
+        }
+
+        if(updatePlanning.end_time !== undefined) {
+            planningFound.end_time = updatePlanning.end_time
         }
 
         if(updatePlanning.listUser !== undefined) {
