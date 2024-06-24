@@ -1,6 +1,7 @@
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Vote } from "./vote";
 import { User } from "./user";
+import { Sondage } from "./sondage";
+import { Vote } from "./vote";
 
 @Entity({name: "Reponse"})
 export class Reponse {
@@ -16,18 +17,23 @@ export class Reponse {
     @ManyToOne(() => Vote, vote => vote.reponses)
     vote: Vote
 
-    @ManyToOne(() => User, user => user.applicants, {nullable: true})
-    applicant: User
+    @ManyToOne(() => Sondage, sondage => sondage.reponses)
+    sondage: Sondage
+
+    @ManyToMany(() => User, user => user.applicants, {nullable: true})
+    @JoinTable({name: "Candidats"})
+    applicants: User[]
 
     @ManyToMany(() => User, user => user.votes)
     @JoinTable({name: "Votes"})
     voters: User[]
 
-    constructor(id: number, name: string, vote: Vote, applicant: User ,voters: User[]) {
+    constructor(id: number, name: string, vote: Vote, sondage: Sondage ,applicants: User[] ,voters: User[]) {
         this.id = id,
         this.name = name,
         this.vote = vote,
-        this.applicant = applicant
+        this.sondage = sondage,
+        this.applicants = applicants
         this.voters = voters
     }
 }

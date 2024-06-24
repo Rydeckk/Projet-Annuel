@@ -3,30 +3,30 @@ import { Reponse } from "../database/entities/reponse";
 import { Association } from "../database/entities/association";
 import { Vote } from "../database/entities/vote";
 import { User } from "../database/entities/user";
+import { Sondage } from "../database/entities/sondage";
 
-export interface UpdateReponseParams {
+export interface UpdateReponseSondageParams {
     name?: string,
-    voteId?: number,
-    applicantId?: number
+    sondageId?: number
 }
 
-export interface ListReponseFilter {
+export interface ListReponseSondageFilter {
     page: number,
     limit: number,
-    voteId?: number,
-    applicantId?: number
+    sondageId?: number,
+    associationId?: number
 }
 
 export class ReponseUseCase {
     constructor(private readonly db: DataSource) { }
 
-    async getReponse(id: number, vote: Vote): Promise <Reponse | null> {
+    async getReponseSondage(id: number, sondage: Sondage, asso?: Association): Promise <Reponse | null> {
         const query = this.db.createQueryBuilder(Reponse, "rep")
-        query.innerJoinAndSelect("rep.vote","vote")
-        query.leftJoinAndSelect("rep.applicant","user")
+        query.innerJoin("rep.sondage","sondage")
         query.leftJoinAndSelect("rep.voters","voters")
-        query.innerJoin("vote.association","asso")
-        query.andWhere("vote.id = :voteId", {voteId: vote.id})
+        query.innerJoin("sondage.association","asso")
+        query.andWhere("asso.id = :assoId", {assoId: asso?.id})
+        query.andWhere("sondage.id = :sondageId", {sondageId: sondage.id})
         query.andWhere("rep.id = :id", {id: id})
         
         const reponseFound = await query.getOne()
@@ -36,18 +36,14 @@ export class ReponseUseCase {
         return reponseFound
     }
 
-    async getListReponse(reponseFilter: ListReponseFilter): Promise <{ Reponses: Reponse[]}> {
+    async getListReponseSondage(reponseFilter: ListReponseSondageFilter): Promise <{ Reponses: Reponse[]}> {
         const query = this.db.createQueryBuilder(Reponse, 'rep')
-        query.innerJoinAndSelect("rep.vote","vote")
-        query.leftJoinAndSelect("rep.applicant","user")
-        query.innerJoin("vote.association","asso")
-        query.andWhere("vote.id = :voteId", {voteId: reponseFilter.voteId})
+        query.innerJoin("rep.sondage","sondage")
+        query.innerJoin("sondage.association","asso")
+        query.andWhere("asso.id = :assoId", {assoId: reponseFilter.associationId})
+        query.andWhere("sondage.id = :sondageId", {sondageId: reponseFilter.sondageId})
         query.skip((reponseFilter.page - 1) * reponseFilter.limit)
         query.take(reponseFilter.limit)
-
-        if(reponseFilter.applicantId !== undefined) {
-            query.andWhere("user.id = :userId", {userId: reponseFilter.applicantId})
-        }
 
         const Reponses = await query.getMany()
         return {
@@ -55,13 +51,13 @@ export class ReponseUseCase {
         }
     }
 
-    async updateReponse(id: number, updateReponse: UpdateReponseParams, asso?: Association): Promise <Reponse | null> {
+    async updateReponseSondage(id: number, updateReponse: UpdateReponseSondageParams, asso?: Association): Promise <Reponse | null> {
         const query = this.db.createQueryBuilder(Reponse, "rep")
-        query.innerJoinAndSelect("rep.vote","vote")
-        query.leftJoinAndSelect("rep.applicant","user")
-        query.innerJoin("vote.association","asso")
+        query.innerJoin("rep.sondage","sondage")
+        query.innerJoin("sondage.association","asso")
         query.andWhere("rep.id = :id", {id: id})
-        query.andWhere("vote.id = :voteId", {voteId: updateReponse.voteId})
+        query.andWhere("asso.id = :assoId", {assoId: asso?.id})
+        query.andWhere("sondage.id = :sondageId", {sondageId: updateReponse.sondageId})
         
         const reponseFound = await query.getOne()
 
@@ -71,24 +67,17 @@ export class ReponseUseCase {
             reponseFound.name = updateReponse.name
         }
 
-        if(updateReponse.applicantId !== undefined) {
-            const userFound = await this.db.getRepository(User).findOne({where: {id: updateReponse.applicantId, association: asso}})
-            if(userFound) {
-                reponseFound.applicant = userFound
-            }
-        }
-
         const repoReponse = this.db.getRepository(Reponse)
         const updatedAsso = await repoReponse.save(reponseFound)
         return updatedAsso
     }
 
-    async deleteReponse(id: number, voteId: number):Promise <Reponse | null> {
+    async deleteReponseSondage(id: number, sondageId: number, asso?: Association):Promise <Reponse | null> {
         const query = this.db.createQueryBuilder(Reponse, "rep")
-        query.innerJoinAndSelect("rep.vote","vote")
-        query.leftJoinAndSelect("rep.applicant","user")
-        query.innerJoin("vote.association","asso")
-        query.where("vote.id = :voteId", {voteId: voteId})
+        query.innerJoin("rep.sondage","sondage")
+        query.innerJoin("sondage.association","asso")
+        query.where("sondage.id = :sondageId", {sondageId: sondageId})
+        query.andWhere("asso.id = :assoId", {assoId: asso?.id})
         query.andWhere("rep.id = :id", {id: id})
         
         const reponseFound = await query.getOne()

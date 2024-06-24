@@ -2,8 +2,8 @@ import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "ty
 import { Reponse } from "./reponse";
 import { Association } from "./association";
 
-@Entity({name: "Vote"})
-export class Vote {
+@Entity({name: "Sondage"})
+export class Sondage {
     @PrimaryGeneratedColumn()
     id: number
 
@@ -16,10 +16,10 @@ export class Vote {
     @Column({type: "datetime"})
     endDate: Date
 
-    @OneToMany(() => Reponse, reponse => reponse.vote)
+    @OneToMany(() => Reponse, reponse => reponse.sondage)
     reponses: Reponse[]
 
-    @ManyToOne(() => Association, association => association.votes)
+    @ManyToOne(() => Association, association => association.sondages)
     association: Association
 
     constructor(id: number, name: string, beginDate: Date, endDate: Date, reponses: Reponse[], association: Association) {

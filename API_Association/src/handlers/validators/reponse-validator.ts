@@ -12,48 +12,46 @@ export const createReponseValidation = Joi.object<CreateReponseRequest>({
 
 export interface GetReponseRequest {
     id: number,
-    voteId: number
+    sondageId: number
 }
 
 export const getReponseValidation = Joi.object<GetReponseRequest>({
     id: Joi.number().required(),
-    voteId: Joi.number().required()
+    sondageId: Joi.number().required()
 })
 
 export interface UpdateReponseValidation {
     id: number,
     name?: string,
-    voteId?: number,
+    sondageId?: number,
     applicantId?: number
 }
 
 export const updateReponseValidation = Joi.object<UpdateReponseValidation>({
     id: Joi.number().required(),
     name: Joi.string().optional(),
-    voteId: Joi.number().optional(),
+    sondageId: Joi.number().optional(),
     applicantId: Joi.number().optional()
 })
 
 export interface GetReponsesRequest {
     page?: number,
     limit?: number,
-    voteId?: number,
-    applicantId?: number
+    sondageId?: number
 }
 
 export const getReponsesValidation = Joi.object<GetReponsesRequest>({
     page: Joi.number().min(1).optional(),
     limit: Joi.number().min(1).optional(),
-    voteId: Joi.number().optional(),
-    applicantId: Joi.number().optional()
+    sondageId: Joi.number().optional()
 })
 
-export interface GetReponseVoteRequest {
+export interface GetReponseSondageRequest {
     id: number,
-    voteId: number
+    sondageId: number
 }
 
-export const getReponseVoteValidation = Joi.object<GetReponseVoteRequest>({
+export const getReponseSondageValidation = Joi.object<GetReponseSondageRequest>({
     id: Joi.number().required(),
-    voteId: Joi.number().required()
+    sondageId: Joi.number().required()
 })

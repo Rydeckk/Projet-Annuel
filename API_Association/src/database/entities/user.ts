@@ -50,7 +50,7 @@ export class User {
     @OneToMany(() => Materiel, materiel => materiel.user)
     materiels: Materiel[]
 
-    @OneToMany(() => Reponse, reponse => reponse.applicant)
+    @OneToMany(() => Reponse, reponse => reponse.applicants)
     applicants: Reponse[]
 
     @ManyToMany(() => Evenement, evenement => evenement.attendees)
