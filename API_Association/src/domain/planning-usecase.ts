@@ -6,6 +6,7 @@ import { User } from "../database/entities/user";
 export interface UpdatePlanningParams {
     title?: string,
     date?: Date,
+    location?: string,
     start_time?: string,
     end_time?: string
     listUser?: Array<number>
@@ -15,6 +16,7 @@ export interface ListPlanningFilter {
     page: number,
     limit: number,
     date?: Date,
+    location?: string,
     start_time?: string,
     end_time?: string
     listUser?: Array<number>,
@@ -42,6 +44,10 @@ export class PlanningUseCase {
 
         if(planningFilter.date !== undefined) {
             query.andWhere("planning.date = :date", {date: planningFilter.date.toISOString()})
+        }
+
+        if(planningFilter.location !== undefined) {
+            query.andWhere("planning.location = :location", {location: planningFilter.location})
         }
 
         if(planningFilter.start_time !== undefined) {
@@ -77,6 +83,10 @@ export class PlanningUseCase {
 
         if(updatePlanning.date !== undefined) {
             planningFound.date = updatePlanning.date
+        }
+
+        if(updatePlanning.location !== undefined) {
+            planningFound.location = updatePlanning.location
         }
 
         if(updatePlanning.start_time !== undefined) {

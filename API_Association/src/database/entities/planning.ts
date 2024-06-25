@@ -7,11 +7,14 @@ export class Planning {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column()
+    @Column({default: ""})
     title: string
 
     @Column({type: "date"})
     date: Date
+
+    @Column({default: ""})
+    location: string
 
     @Column({type: "time"})
     start_time: string
@@ -26,10 +29,11 @@ export class Planning {
     @JoinTable({name: "Taches_membre"})
     users: User[]
 
-    constructor(id: number, title: string, date: Date, start_time: string, end_time: string, association: Association, users: User[]) {
+    constructor(id: number, title: string, date: Date, location: string ,start_time: string, end_time: string, association: Association, users: User[]) {
         this.id = id,
         this.title = title,
         this.date = date,
+        this.location = location,
         this.start_time = start_time,
         this.end_time = end_time,
         this.association = association,
