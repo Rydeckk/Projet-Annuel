@@ -5,7 +5,8 @@ export interface CreatePlanningRequest {
     date: Date,
     location: string,
     start_time: string,
-    end_time: string
+    end_time: string,
+    calendar_name: string
     listUser?: Array<number>
 }
 
@@ -17,6 +18,7 @@ export const createPlanningValidation = Joi.object<CreatePlanningRequest>({
     location: Joi.string().required(),
     start_time: Joi.string().pattern(timeRegex).required(),
     end_time: Joi.string().pattern(timeRegex).required(),
+    calendar_name: Joi.string().required(),
     listUser: Joi.array().items(Joi.number()).optional()
 })
 
@@ -34,7 +36,8 @@ export interface UpdatePlanningValidation {
     date?: Date,
     location?: string,
     start_time?: string,
-    end_time?: string
+    end_time?: string,
+    calendar_name?: string,
     listUser?: Array<number>
 }
 
@@ -45,6 +48,7 @@ export const updatePlanningValidation = Joi.object<UpdatePlanningValidation>({
     location: Joi.string().optional(),
     start_time: Joi.string().pattern(timeRegex).optional(),
     end_time: Joi.string().pattern(timeRegex).optional(),
+    calendar_name: Joi.string().optional(),
     listUser: Joi.array().items(Joi.number()).optional()
 })
 
@@ -54,7 +58,8 @@ export interface GetPlanningsRequest {
     date?: Date,
     location?: string,
     start_time?: string,
-    end_time?: string
+    end_time?: string,
+    calendar_name?: string
     listUser?: Array<number>
 }
 
@@ -65,5 +70,6 @@ export const getPlanningsValidation = Joi.object<GetPlanningsRequest>({
     location: Joi.string().optional(),
     start_time: Joi.string().pattern(timeRegex).optional(),
     end_time: Joi.string().pattern(timeRegex).optional(),
+    calendar_name: Joi.string().optional(),
     listUser: Joi.array().items(Joi.number()).optional()
 })

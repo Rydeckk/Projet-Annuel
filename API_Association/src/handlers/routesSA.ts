@@ -634,4 +634,13 @@ export const initRoutesSA = (app: express.Application) => {
     })
     //#endregion
 
+    //#region Route Ping
+    app.get("/ping", async (req: Request, res: Response) => {
+        try {
+            res.status(200).send("Connexion OK")
+        } catch (error) {
+            res.status(500).send("Internal Error")
+        }
+    })
+    //#endregion
 }

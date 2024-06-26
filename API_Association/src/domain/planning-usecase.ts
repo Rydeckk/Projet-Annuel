@@ -8,7 +8,8 @@ export interface UpdatePlanningParams {
     date?: Date,
     location?: string,
     start_time?: string,
-    end_time?: string
+    end_time?: string,
+    calendar_name?: string
     listUser?: Array<number>
 }
 
@@ -18,7 +19,8 @@ export interface ListPlanningFilter {
     date?: Date,
     location?: string,
     start_time?: string,
-    end_time?: string
+    end_time?: string,
+    calendar_name?: string,
     listUser?: Array<number>,
     associationId?: number
 }
@@ -37,8 +39,8 @@ export class PlanningUseCase {
 
     async getListPlanning(planningFilter: ListPlanningFilter): Promise <{ plannings: Planning[]}> {
         const query = this.db.createQueryBuilder(Planning, 'planning')
-        query.innerJoin("planning.association","asso")
-        query.innerJoinAndSelect("planning.users","users")
+        query.leftJoin("planning.association","asso")
+        query.leftJoinAndSelect("planning.users","users")
         query.skip((planningFilter.page - 1) * planningFilter.limit)
         query.take(planningFilter.limit)
 
@@ -56,6 +58,10 @@ export class PlanningUseCase {
 
         if(planningFilter.end_time !== undefined) {
             query.andWhere("planning.end_time <= :end_time", {end_time: planningFilter.end_time})
+        }
+
+        if(planningFilter.end_time !== undefined) {
+            query.andWhere("planning.calendar_name = :calendar_name", {calendar_name: planningFilter.calendar_name})
         }
 
         if(planningFilter.listUser !== undefined) {
@@ -95,6 +101,10 @@ export class PlanningUseCase {
 
         if(updatePlanning.end_time !== undefined) {
             planningFound.end_time = updatePlanning.end_time
+        }
+
+        if(updatePlanning.calendar_name !== undefined) {
+            planningFound.calendar_name = updatePlanning.calendar_name
         }
 
         if(updatePlanning.listUser !== undefined) {

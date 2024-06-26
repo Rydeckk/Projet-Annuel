@@ -2321,7 +2321,7 @@ export const initRoutes = (app: express.Express) => {
     //#endregion
 
     //#region Routes Planning
-    app.post("/association/mine/planning", authMiddlewareAdmin, async (req: Request, res: Response) => {
+    app.post("/association/mine/planning", async (req: Request, res: Response) => {
         const validation = createPlanningValidation.validate(req.body)
 
         if (validation.error) {
@@ -2331,14 +2331,14 @@ export const initRoutes = (app: express.Express) => {
 
         const createPlanningRequest = validation.value
 
-        const userConnectedFound = await getConnectedUser(req.user.userId, AppDataSource)
+        //const userConnectedFound = await getConnectedUser(req.user.userId, AppDataSource)
 
         try {
-            const createdPlanning = await AppDataSource.getRepository(Planning).save({...createPlanningRequest, association: userConnectedFound?.association})
+            const createdPlanning = await AppDataSource.getRepository(Planning).save({...createPlanningRequest})
             createdPlanning.users = []
             const userUseCase = new UserUseCase(AppDataSource)
             createPlanningRequest.listUser?.forEach(async userId => {
-                const userFound = await userUseCase.getUser(userId,userConnectedFound?.association,false)
+                const userFound = await userUseCase.getUser(userId,undefined,false)
                 if(userFound !== null) {
                     createdPlanning.users.push(userFound)
                 }
@@ -2352,7 +2352,7 @@ export const initRoutes = (app: express.Express) => {
         }
     })
 
-    app.get("/association/mine/planning/:id", authMiddlewareMember, async (req:Request, res:Response) => {
+    app.get("/association/mine/planning/:id", async (req:Request, res:Response) => {
         const validation = getPlanningValidation.validate(req.params)
 
         if (validation.error) {
@@ -2362,11 +2362,11 @@ export const initRoutes = (app: express.Express) => {
 
         const getPlanningRequest = validation.value
 
-        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+        //const userFound = await getConnectedUser(req.user.userId, AppDataSource)
 
         try {
             const planningUseCase = new PlanningUseCase(AppDataSource)
-            const planningFound = await planningUseCase.getPlanning(getPlanningRequest.id,userFound?.association)
+            const planningFound = await planningUseCase.getPlanning(getPlanningRequest.id)
             if (planningFound === null) {
                 res.status(404).send({"error": `Planning ${getPlanningRequest.id} not found`})
                 return
@@ -2379,7 +2379,7 @@ export const initRoutes = (app: express.Express) => {
         }
     })
 
-    app.get("/association/mine/planning", authMiddlewareMember, async (req: Request, res: Response) => {
+    app.get("/association/mine/planning", async (req: Request, res: Response) => {
         const validation = getPlanningsValidation.validate(req.query)
 
         if (validation.error) {
@@ -2389,7 +2389,7 @@ export const initRoutes = (app: express.Express) => {
 
         const getPlanningsRequest = validation.value
 
-        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+        //const userFound = await getConnectedUser(req.user.userId, AppDataSource)
 
         let limit = 20
         if (getPlanningsRequest.limit) {
@@ -2399,7 +2399,7 @@ export const initRoutes = (app: express.Express) => {
 
         try {
             const planningUseCase = new PlanningUseCase(AppDataSource)
-            const planningFound = await planningUseCase.getListPlanning({...getPlanningsRequest, page, limit, associationId: userFound?.association.id})
+            const planningFound = await planningUseCase.getListPlanning({...getPlanningsRequest, page, limit})
             res.status(200).send(planningFound)
 
         } catch (error) {
@@ -2408,7 +2408,7 @@ export const initRoutes = (app: express.Express) => {
 
     })
 
-    app.patch("/association/mine/planning/:id", authMiddlewareAdmin ,async (req: Request, res: Response) => {
+    app.patch("/association/mine/planning/:id" ,async (req: Request, res: Response) => {
         const validation = updatePlanningValidation.validate({...req.params,...req.body})
 
         if (validation.error) {
@@ -2418,11 +2418,11 @@ export const initRoutes = (app: express.Express) => {
 
         const updatePlanningRequest = validation.value
 
-        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+        //const userFound = await getConnectedUser(req.user.userId, AppDataSource)
 
         try {
             const planningUseCase = new PlanningUseCase(AppDataSource)
-            const planningFound = await planningUseCase.updatePlanning(updatePlanningRequest.id,{...updatePlanningRequest},userFound?.association)
+            const planningFound = await planningUseCase.updatePlanning(updatePlanningRequest.id,{...updatePlanningRequest})
             if (planningFound === null) {
                 res.status(404).send({"error": `Planning ${updatePlanningRequest.id} not found`})
                 return
@@ -2435,7 +2435,7 @@ export const initRoutes = (app: express.Express) => {
         }
     })
 
-    app.delete("/association/mine/planning/:id", authMiddlewareAdmin ,async (req: Request, res: Response) => {
+    app.delete("/association/mine/planning/:id" ,async (req: Request, res: Response) => {
         const validation = getPlanningValidation.validate(req.params)
 
         if (validation.error) {
@@ -2445,11 +2445,11 @@ export const initRoutes = (app: express.Express) => {
 
         const deletePlanningRequest = validation.value
 
-        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+        //const userFound = await getConnectedUser(req.user.userId, AppDataSource)
 
         try {
             const planningUseCase = new PlanningUseCase(AppDataSource)
-            const planningFound = await planningUseCase.deletePlanning(deletePlanningRequest.id,userFound?.association)
+            const planningFound = await planningUseCase.deletePlanning(deletePlanningRequest.id)
             if (planningFound === null) {
                 res.status(404).send({"error": `Planning ${deletePlanningRequest.id} not found`})
                 return
@@ -2462,7 +2462,6 @@ export const initRoutes = (app: express.Express) => {
         }
     })
     //#endregion
-
 
     initRoutesSA(app)
     UserHandler(app)
