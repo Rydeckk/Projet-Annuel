@@ -3,7 +3,7 @@ import traduction from "../traductions/traduction.json"
 
 export function Home() {
     return (
-        <div style={{backgroundColor:'greenyellow'}}>
+        <div>
             <h1>{traduction.home}</h1>
         </div>
     )

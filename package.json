@@ -11,16 +11,19 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "mysql2": "^3.10.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.23.1"
+    "react-router-dom": "^6.23.1",
+    "typeorm": "^0.3.20",
+    "typescript": "^5.5.2"
   },
   "devDependencies": {
     "@tsconfig/vite-react": "^3.0.2",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "react-error-overlay": "^6.0.9",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.5",
     "vite": "^5.2.13",
     "vite-plugin-react-click-to-component": "^3.0.0",
     "vite-tsconfig-paths": "^4.3.2",

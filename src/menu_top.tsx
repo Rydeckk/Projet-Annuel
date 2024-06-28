@@ -1,6 +1,11 @@
 import React from "react";
 import traduction from "../traductions/traduction.json"
 
+async function get_name(): Promise<string> {
+    await fetch("")
+    return ""
+}
+
 export function Menu_top() {
     return (
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",backgroundColor:"#333333"}}>
@@ -9,28 +14,28 @@ export function Menu_top() {
                     <h1>Nom de l'association</h1>
                 </div>
                 <div className="div_padding10_horizontal">
-                    <a id="lHome" href="/">{traduction.home}</a>
+                    <a id="lHome" href="/" className="link">{traduction.home}</a>
                 </div>
                 <div className="div_padding10_horizontal">
-                    <a id="lAbout" href="/about">{traduction.about}</a>
+                    <a id="lAbout" href="/about" className="link">{traduction.about}</a>
                 </div>
                 <div className="div_padding10_horizontal">
-                    <a id="lEvent" href="/event">{traduction.event}</a>
+                    <a id="lEvent" href="/event" className="link">{traduction.event}</a>
                 </div>
                 <div className="div_padding10_horizontal">
-                    <a id="lCalendar" href="/calendar">{traduction.calendar}</a>
+                    <a id="lCalendar" href="/calendar" className="link">{traduction.calendar}</a>
                 </div>
             </div>
             
             <div className="div_align_item">
                 <div className="div_padding10_horizontal">
-                    <button id="btDonate">{traduction.donate}</button>
+                    <a id="btDonate" className="link_button" href="/donate">{traduction.donate}</a>
                 </div>
                 <div className="div_padding10_horizontal">
-                    <a id="lLogin" href="/login">{traduction.login}</a>
+                    <a id="lLogin" href="/login" className="link_button">{traduction.login}</a>
                 </div>
                 <div className="div_padding10_horizontal">
-                    <a id="btSignUp" href="/signup">{traduction.signup}</a>
+                    <a id="lSignUp" href="/signup" className="link_button">{traduction.signup}</a>
                 </div>
                 <div className="div_align_item">
                     <label>Bonjour Monsieur</label>

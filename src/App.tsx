@@ -7,6 +7,7 @@ import { Calendar } from "./Calendar";
 import { Events } from "./Events";
 import { Login } from "./Login";
 import "../class/classes.css"
+import { SignUp } from "./SignUp";
 
 export function App() {
   const [isMenuTopVisible, setIsMenuTopVisible] = useState(true)
@@ -20,6 +21,7 @@ export function App() {
           <Route path="/event" element={<Events />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
         </Routes>
       </Router>
     </div>

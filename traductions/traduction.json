@@ -10,5 +10,9 @@
     "mail" : "Email",
     "password" : "Mot de passe",
     "enter_mail" : "Entrez votre email",
-    "enter_password" : "Entrez votre mot de passe"
+    "enter_password" : "Entrez votre mot de passe",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "address": "Adresse",
+    "signup_form": "Inscription"
 }
