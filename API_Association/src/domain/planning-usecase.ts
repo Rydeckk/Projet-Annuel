@@ -7,8 +7,8 @@ export interface UpdatePlanningParams {
     title?: string,
     date?: Date,
     location?: string,
-    start_time?: string,
-    end_time?: string,
+    startTime?: string,
+    endTime?: string,
     calendar_name?: string
     listUser?: Array<number>
 }
@@ -18,8 +18,8 @@ export interface ListPlanningFilter {
     limit: number,
     date?: Date,
     location?: string,
-    start_time?: string,
-    end_time?: string,
+    startTime?: string,
+    endTime?: string,
     calendar_name?: string,
     listUser?: Array<number>,
     associationId?: number
@@ -52,15 +52,15 @@ export class PlanningUseCase {
             query.andWhere("planning.location = :location", {location: planningFilter.location})
         }
 
-        if(planningFilter.start_time !== undefined) {
-            query.andWhere("planning.start_time >= :start_time", {start_time: planningFilter.start_time})
+        if(planningFilter.startTime !== undefined) {
+            query.andWhere("planning.startTime >= :startTime", {startTime: planningFilter.startTime})
         }
 
-        if(planningFilter.end_time !== undefined) {
-            query.andWhere("planning.end_time <= :end_time", {end_time: planningFilter.end_time})
+        if(planningFilter.endTime !== undefined) {
+            query.andWhere("planning.endTime <= :endTime", {endTime: planningFilter.endTime})
         }
 
-        if(planningFilter.end_time !== undefined) {
+        if(planningFilter.calendar_name !== undefined) {
             query.andWhere("planning.calendar_name = :calendar_name", {calendar_name: planningFilter.calendar_name})
         }
 
@@ -95,12 +95,12 @@ export class PlanningUseCase {
             planningFound.location = updatePlanning.location
         }
 
-        if(updatePlanning.start_time !== undefined) {
-            planningFound.start_time = updatePlanning.start_time
+        if(updatePlanning.startTime !== undefined) {
+            planningFound.startTime = updatePlanning.startTime
         }
 
-        if(updatePlanning.end_time !== undefined) {
-            planningFound.end_time = updatePlanning.end_time
+        if(updatePlanning.endTime !== undefined) {
+            planningFound.endTime = updatePlanning.endTime
         }
 
         if(updatePlanning.calendar_name !== undefined) {

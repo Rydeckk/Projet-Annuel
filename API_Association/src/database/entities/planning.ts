@@ -17,10 +17,10 @@ export class Planning {
     location: string
 
     @Column({type: "time"})
-    start_time: string
+    startTime: string
 
     @Column({type: "time"})
-    end_time: string
+    endTime: string
 
     @Column({default: ""})
     calendar_name: string
@@ -32,13 +32,13 @@ export class Planning {
     @JoinTable({name: "Taches_membre"})
     users: User[]
 
-    constructor(id: number, title: string, date: Date, location: string ,start_time: string, end_time: string, calendar_name: string, association: Association, users: User[]) {
+    constructor(id: number, title: string, date: Date, location: string ,startTime: string, endTime: string, calendar_name: string, association: Association, users: User[]) {
         this.id = id,
         this.title = title,
         this.date = date,
         this.location = location,
-        this.start_time = start_time,
-        this.end_time = end_time,
+        this.startTime = startTime,
+        this.endTime = endTime,
         this.calendar_name = calendar_name,
         this.association = association,
         this.users = users

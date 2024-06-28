@@ -4,8 +4,8 @@ export interface CreatePlanningRequest {
     title: string
     date: Date,
     location: string,
-    start_time: string,
-    end_time: string,
+    startTime: string,
+    endTime: string,
     calendar_name: string
     listUser?: Array<number>
 }
@@ -16,8 +16,8 @@ export const createPlanningValidation = Joi.object<CreatePlanningRequest>({
     title: Joi.string().required(),
     date: Joi.date().iso().required(),
     location: Joi.string().required(),
-    start_time: Joi.string().pattern(timeRegex).required(),
-    end_time: Joi.string().pattern(timeRegex).required(),
+    startTime: Joi.string().pattern(timeRegex).required(),
+    endTime: Joi.string().pattern(timeRegex).required(),
     calendar_name: Joi.string().required(),
     listUser: Joi.array().items(Joi.number()).optional()
 })
@@ -35,8 +35,8 @@ export interface UpdatePlanningValidation {
     title?: string,
     date?: Date,
     location?: string,
-    start_time?: string,
-    end_time?: string,
+    startTime?: string,
+    endTime?: string,
     calendar_name?: string,
     listUser?: Array<number>
 }
@@ -46,8 +46,8 @@ export const updatePlanningValidation = Joi.object<UpdatePlanningValidation>({
     title: Joi.string().optional(),
     date: Joi.date().iso().optional(),
     location: Joi.string().optional(),
-    start_time: Joi.string().pattern(timeRegex).optional(),
-    end_time: Joi.string().pattern(timeRegex).optional(),
+    startTime: Joi.string().pattern(timeRegex).optional(),
+    endTime: Joi.string().pattern(timeRegex).optional(),
     calendar_name: Joi.string().optional(),
     listUser: Joi.array().items(Joi.number()).optional()
 })
@@ -57,8 +57,8 @@ export interface GetPlanningsRequest {
     limit?: number,
     date?: Date,
     location?: string,
-    start_time?: string,
-    end_time?: string,
+    startTime?: string,
+    endTime?: string,
     calendar_name?: string
     listUser?: Array<number>
 }
@@ -68,8 +68,8 @@ export const getPlanningsValidation = Joi.object<GetPlanningsRequest>({
     limit: Joi.number().min(1).optional(),
     date: Joi.date().iso().optional(),
     location: Joi.string().optional(),
-    start_time: Joi.string().pattern(timeRegex).optional(),
-    end_time: Joi.string().pattern(timeRegex).optional(),
+    startTime: Joi.string().pattern(timeRegex).optional(),
+    endTime: Joi.string().pattern(timeRegex).optional(),
     calendar_name: Joi.string().optional(),
     listUser: Joi.array().items(Joi.number()).optional()
 })
