@@ -127,3 +127,15 @@ export const updateMyAssociationValidation = Joi.object<UpdateMyAssociationReque
     description: Joi.string()
         .optional()
 })
+
+export interface GetAssociationsRequest {
+    page?: number,
+    limit?: number,
+    domainName?: string
+}
+
+export const getAssociationsValidation = Joi.object<GetAssociationsRequest>({
+    page: Joi.number().min(1).optional(),
+    limit: Joi.number().min(1).optional(),
+    domainName: Joi.string().optional()
+})

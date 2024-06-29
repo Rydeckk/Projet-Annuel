@@ -11,6 +11,12 @@ export interface UpdateAssociationParams {
     gedId?: number
 }
 
+export interface GetAssociationsFilter {
+    page: number,
+    limit: number
+    domainName?: string
+}
+
 export class AssociationUseCase {
     constructor(private readonly db: DataSource) { }
 
@@ -59,5 +65,20 @@ export class AssociationUseCase {
 
         const updatedAsso = await repoAsso.save(assoFound)
         return updatedAsso
+    }
+
+    async getListAssociation(assoFilter: GetAssociationsFilter): Promise<{ associations: Association[]}> {
+        const query = this.db.createQueryBuilder(Association, 'asso')
+        query.skip((assoFilter.page - 1) * assoFilter.limit)
+        query.take(assoFilter.limit)
+
+        if(assoFilter.domainName !== undefined) {
+            query.andWhere("asso.domainName >= :domainName", {domainName: assoFilter.domainName})
+        }
+
+        const associations = await query.getMany()
+        return {
+            associations
+        }
     }
 }

@@ -7,7 +7,7 @@ import { hash } from "bcrypt"
 import { AppDataSource } from "../database/database"
 import { UserUseCase } from "../domain/user-usecase"
 import { Role } from "../database/entities/role"
-import { AssociationUseCase } from "../domain/associationn-usecase"
+import { AssociationUseCase } from "../domain/association-usecase"
 import { RoleUseCase } from "../domain/role-usecase"
 import { createRoleValidation, getRoleByIdValidation, getRolesValidation, updateRoleValidation } from "./validators/role-validator"
 import { Association } from "../database/entities/association"
@@ -63,9 +63,25 @@ export const initRoutesSA = (app: express.Application) => {
             const associationCreated = await associationRepo.save(
                 {...createAssociationRequest,
                 ged: createdGED,
-                theme: createdTheme}
+                theme: createdTheme})
                 
-            )
+                await AppDataSource.getRepository(Role).save({
+                    name: "Utilisateur",
+                    association: associationCreated
+                })
+
+                await AppDataSource.getRepository(Role).save({
+                    name: "Membre",
+                    isMember: true,
+                    association: associationCreated
+                })
+
+                await AppDataSource.getRepository(Role).save({
+                    name: "Admin",
+                    isAdmin: true,
+                    association: associationCreated
+                })
+                
             res.status(201).send(associationCreated)
         } catch (error) {
             res.status(500).send({ error: "Internal error" })

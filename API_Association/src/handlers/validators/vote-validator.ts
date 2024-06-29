@@ -4,14 +4,16 @@ export interface CreateVoteRequest {
     name: string,
     beginDate: Date,
     endDate: Date,
-    voteIdParent?: number
+    voteIdParent?: number,
+    assembleeId?: number
 }
 
 export const createVoteValidation = Joi.object<CreateVoteRequest>({
     name: Joi.string().required(),
     beginDate: Joi.date().iso().required(),
     endDate: Joi.date().iso().required(),
-    voteIdParent: Joi.number().optional()
+    voteIdParent: Joi.number().optional(),
+    assembleeId: Joi.number().optional()
 })
 
 export interface GetVoteRequest {
@@ -27,7 +29,8 @@ export interface UpdateVoteValidation {
     name?: string,
     beginDate?: Date,
     endDate?: Date,
-    voteIdParent?: number
+    voteIdParent?: number,
+    assembleeId?: number
 }
 
 export const updateVoteValidation = Joi.object<UpdateVoteValidation>({
@@ -35,7 +38,8 @@ export const updateVoteValidation = Joi.object<UpdateVoteValidation>({
     name: Joi.string().optional(),
     beginDate: Joi.date().iso().optional(),
     endDate: Joi.date().iso().optional(),
-    voteIdParent: Joi.number().optional()
+    voteIdParent: Joi.number().optional(),
+    assembleeId: Joi.number().optional()
 })
 
 export interface GetVotesRequest {
@@ -43,7 +47,8 @@ export interface GetVotesRequest {
     limit?: number,
     beginDate?: Date,
     endDate?: Date,
-    voteIdParent?: number
+    voteIdParent?: number,
+    assembleeId?: number
 }
 
 export const getVotesValidation = Joi.object<GetVotesRequest>({
@@ -51,5 +56,6 @@ export const getVotesValidation = Joi.object<GetVotesRequest>({
     limit: Joi.number().min(1).optional(),
     beginDate: Joi.date().iso().optional(),
     endDate: Joi.date().iso().optional(),
-    voteIdParent: Joi.number().optional()
+    voteIdParent: Joi.number().optional(),
+    assembleeId: Joi.number().optional()
 })

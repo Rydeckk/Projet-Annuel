@@ -11,8 +11,8 @@ import { getTransactionsValidation } from "./validators/transactions-validator";
 import { TransactionUseCase } from "../domain/transaction-usecase";
 import { UserHandler } from "./user";
 import { Request } from "../types/express"
-import { updateMyAssociationValidation } from "./validators/association-validator";
-import { AssociationUseCase } from "../domain/associationn-usecase";
+import { getAssociationsValidation, updateMyAssociationValidation } from "./validators/association-validator";
+import { AssociationUseCase } from "../domain/association-usecase";
 import { initRoutesSA } from "./routesSA"
 import { createLocalValidation, getListLocalValidation, getLocalValidation, updateLocalValidation } from "./validators/local-validator";
 import { LocalUseCase } from "../domain/local-usecase";
@@ -50,6 +50,9 @@ import { User } from "../database/entities/user";
 import { Sondage } from "../database/entities/sondage";
 import { SondageUseCase } from "../domain/sondage-usecase";
 import { createSondageValidation, getSondageValidation, getSondagesValidation, updateSondageValidation } from "./validators/sondage-validator";
+import { createAssembleeValidation, getAssembleesValidation, getAssembleeValidation, updateAssembleeValidation } from "./validators/assemblee-validator";
+import { AssembleeUseCase } from "../domain/assemblee-usecase";
+import { Assemblee } from "../database/entities/assemblee";
 
 export const initRoutes = (app: express.Express) => {
 
@@ -103,6 +106,32 @@ export const initRoutes = (app: express.Express) => {
             const assoUseCase = new AssociationUseCase(AppDataSource)
             const updatedAsso = await assoUseCase.updateAssociation(userFound.association.id,{...updateAssociationRequest})
             res.status(201).send(updatedAsso)
+        } catch (error) {
+            res.status(500).send({ error: "Internal error" })
+        }
+    })
+
+    app.get("/association", async (req: Request, res: Response) => {
+        const validation = getAssociationsValidation.validate(req.query)
+
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+            return
+        }
+
+        const getListAssociationRequest = validation.value
+
+        let limit = 20
+        if (getListAssociationRequest.limit) {
+            limit = getListAssociationRequest.limit
+        }
+        const page = getListAssociationRequest.page ?? 1
+
+
+        try {
+            const assoUseCase = new AssociationUseCase(AppDataSource)
+            const listAsso = await assoUseCase.getListAssociation({...getListAssociationRequest, limit, page})
+            res.status(201).send(listAsso)
         } catch (error) {
             res.status(500).send({ error: "Internal error" })
         }
@@ -2463,6 +2492,139 @@ export const initRoutes = (app: express.Express) => {
     })
     //#endregion
 
+    //#region Routes Assemblee
+    app.post("/association/mine/assemblee", authMiddlewareAdmin , async (req: Request, res: Response) => {
+        const validation = createAssembleeValidation.validate(req.body)
+
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+            return
+        }
+
+        const createAssembleeRequest = validation.value
+
+        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+
+        try {
+            const createdAssemblee = await AppDataSource.getRepository(Assemblee).save({...createAssembleeRequest,association: userFound?.association})
+
+            res.status(200).send(createdAssemblee)
+        } catch (error) {
+            console.log(error)
+            res.status(500).send({ error: "Internal error" })
+        }
+    })
+
+    app.get("/association/mine/assemblee/:id", authMiddlewareMember, async (req:Request, res:Response) => {
+        const validation = getAssembleeValidation.validate(req.params)
+
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+            return
+        }
+
+        const assembleeRequest = validation.value
+
+        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+
+        try {
+            const assembleeUseCase = new AssembleeUseCase(AppDataSource)
+            const assembleeFound = await assembleeUseCase.getAssemblee(assembleeRequest.id,userFound?.association)
+            if (assembleeFound === null) {
+                res.status(404).send({"error": `Assemblee ${assembleeRequest.id} not found`})
+                return
+            }
+            res.status(200).send(assembleeFound)
+
+        } catch (error) {
+            console.log(error)
+            res.status(500).send({ error: "Internal error" })
+        }
+    })
+
+    app.get("/association/mine/assemblee", authMiddlewareMember, async (req: Request, res: Response) => {
+        const validation = getAssembleesValidation.validate(req.query)
+
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+            return
+        }
+
+        const getAssembleesRequest = validation.value
+
+        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+
+        let limit = 20
+        if (getAssembleesRequest.limit) {
+            limit = getAssembleesRequest.limit
+        }
+        const page = getAssembleesRequest.page ?? 1
+
+        try {
+            const assembleeUseCase = new AssembleeUseCase(AppDataSource)
+            const assembleeFound = await assembleeUseCase.getListAssemblee({...getAssembleesRequest, page, limit, associationId: userFound?.association.id})
+            res.status(200).send(assembleeFound)
+
+        } catch (error) {
+            res.status(500).send({ error: "Internal error" })
+        }
+
+    })
+
+    app.patch("/association/mine/assemblee/:id", authMiddlewareAdmin ,async (req: Request, res: Response) => {
+        const validation = updateAssembleeValidation.validate({...req.params,...req.body})
+
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+            return
+        }
+
+        const updateAssembleeRequest = validation.value
+
+        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+
+        try {
+            const assembleeUseCase = new AssembleeUseCase(AppDataSource)
+            const assembleeFound = await assembleeUseCase.updateAssemblee(updateAssembleeRequest.id,{...updateAssembleeRequest},userFound?.association)
+            if (assembleeFound === null) {
+                res.status(404).send({"error": `Assemblee ${updateAssembleeRequest.id} not found`})
+                return
+            }
+            res.status(200).send(assembleeFound)
+
+        } catch (error) {
+            console.log(error)
+            res.status(500).send({ error: "Internal error" })
+        }
+    })
+
+    app.delete("/association/mine/assemblee/:id", authMiddlewareAdmin ,async (req: Request, res: Response) => {
+        const validation = getAssembleeValidation.validate(req.params)
+
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+            return
+        }
+
+        const deleteAssembleeRequest = validation.value
+
+        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+
+        try {
+            const assembleeUseCase = new AssembleeUseCase(AppDataSource)
+            const assembleeFound = await assembleeUseCase.deleteAssemblee(deleteAssembleeRequest.id,userFound?.association)
+            if (assembleeFound === null) {
+                res.status(404).send({"error": `Assemblee ${deleteAssembleeRequest.id} not found`})
+                return
+            }
+            res.status(200).send(assembleeFound)
+
+        } catch (error) {
+            console.log(error)
+            res.status(500).send({ error: "Internal error" })
+        }
+    })
+    //#endregion
     initRoutesSA(app)
     UserHandler(app)
 }

@@ -1,12 +1,14 @@
 import { DataSource } from "typeorm";
 import { Vote } from "../database/entities/vote";
 import { Association } from "../database/entities/association";
+import { Assemblee } from "../database/entities/assemblee";
 
 export interface UpdateVoteParams {
     name?: string,
     beginDate?: Date,
     endDate?: Date,
-    voteIdParent?: number
+    voteIdParent?: number,
+    assembleeId?: number
 }
 
 export interface ListVoteFilter {
@@ -15,6 +17,7 @@ export interface ListVoteFilter {
     beginDate?: Date,
     endDate?: Date,
     voteIdParent?: number,
+    assembleeId?: number,
     associationId?: number
 }
 
@@ -23,7 +26,7 @@ export class VoteUseCase {
 
     async getVote(id: number, asso?: Association): Promise <Vote | null> {
         const repoVote = this.db.getRepository(Vote)
-        const voteFound = await repoVote.findOne({where: {id: id,association: asso}, relations: ["association","parentVote"]})
+        const voteFound = await repoVote.findOne({where: {id: id,association: asso}, relations: ["association","parentVote","assemblee"]})
         
         if(voteFound === null) return null
 
@@ -33,7 +36,8 @@ export class VoteUseCase {
     async getListVote(voteFilter: ListVoteFilter): Promise <{ Votes: Vote[]}> {
         const query = this.db.createQueryBuilder(Vote, 'vote')
         query.innerJoin("vote.association","asso")
-        query.innerJoin("vote.parentVote","pVote")
+        query.leftJoin("vote.parentVote","pVote")
+        query.leftJoin("vote.assemblee","assemblee")
         query.skip((voteFilter.page - 1) * voteFilter.limit)
         query.take(voteFilter.limit)
 
@@ -47,6 +51,10 @@ export class VoteUseCase {
 
         if(voteFilter.voteIdParent !== undefined) {
             query.andWhere("pVote.id = :voteIdParent", {voteIdParent: voteFilter.voteIdParent})
+        }
+
+        if(voteFilter.assembleeId !== undefined) {
+            query.andWhere("assemblee.id = :assembleeId", {assembleeId: voteFilter.assembleeId})
         }
 
         if(voteFilter.associationId !== undefined) {
@@ -80,6 +88,13 @@ export class VoteUseCase {
             const parentVoteFound = await this.db.getRepository(Vote).findOneBy({id: updateVote.voteIdParent, association: asso})
             if(parentVoteFound) {
                 voteFound.parentVote = parentVoteFound
+            }
+        }
+
+        if(updateVote.voteIdParent !== undefined) {
+            const assembleeFound = await this.db.getRepository(Assemblee).findOneBy({id: updateVote.assembleeId, association: asso})
+            if(assembleeFound) {
+                voteFound.assemblee = assembleeFound
             }
         }
 

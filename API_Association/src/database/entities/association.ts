@@ -11,6 +11,7 @@ import { Role } from "./role";
 import { Vote } from "./vote";
 import { Planning } from "./planning";
 import { Sondage } from "./sondage";
+import { Assemblee } from "./assemblee";
 
 @Entity({name: "Association"})
 export class Association {
@@ -56,14 +57,17 @@ export class Association {
     @OneToMany(() => Planning, planning => planning.association)
     planning: Planning[]
 
+    @OneToMany(() => Assemblee, assemblee => assemblee.association)
+    assemblee: Assemblee
+
     @ManyToOne(() => Theme, theme => theme.associations)
     theme: Theme
 
     @ManyToOne(() => GED, ged => ged.associations)
     ged: GED
 
-    constructor(id: number, name: string, description: string, domainName: string, users: User[], materiels: Materiel[], 
-        transactions: CompteTransaction[], typeAdhesions: TypeAdhesion[], evenements: Evenement[] , roles: Role[], locaux: Local[], votes: Vote[], sondages: Sondage[], planning: Planning[], theme: Theme, ged: GED ) {
+    constructor(id: number, name: string, description: string, domainName: string, users: User[], materiels: Materiel[], transactions: CompteTransaction[], typeAdhesions: TypeAdhesion[], 
+        evenements: Evenement[] , roles: Role[], locaux: Local[], votes: Vote[], sondages: Sondage[], planning: Planning[], assemblee: Assemblee, theme: Theme, ged: GED ) {
         this.id = id,
         this.name = name,
         this.description = description,
@@ -78,6 +82,7 @@ export class Association {
         this.votes = votes,
         this.sondages = sondages,
         this.planning = planning,
+        this.assemblee = assemblee,
         this.theme = theme,
         this.ged = ged
     }
