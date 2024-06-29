@@ -73,7 +73,7 @@ export class AssociationUseCase {
         query.take(assoFilter.limit)
 
         if(assoFilter.domainName !== undefined) {
-            query.andWhere("asso.domainName >= :domainName", {domainName: assoFilter.domainName})
+            query.andWhere("asso.domainName = :domainName", {domainName: assoFilter.domainName})
         }
 
         const associations = await query.getMany()
