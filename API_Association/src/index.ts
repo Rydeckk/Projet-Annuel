@@ -2,6 +2,7 @@ import express from "express";
 import { initRoutes } from "./handlers/routes";
 import { AppDataSource } from "./database/database";
 import { swaggerDocs } from "./swagger/swagger";
+import cors from "cors"
 
 
 const main = async () => {
@@ -20,7 +21,7 @@ const main = async () => {
 
     swaggerDocs(app, port)
 
-    app.use(express.json())
+    app.use(express.json(), cors())
     initRoutes(app)
     
     app.listen(port, () => {
