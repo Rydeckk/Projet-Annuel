@@ -4,7 +4,9 @@
     box-sizing: border-box;
 }
 
-body {
+.div_root {
+    height: 100%;
+    width: 100%;
     background: linear-gradient(to right,rgb(71, 71, 71),35%,lightgray);
 }
 
