@@ -1,7 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import traduction from "../traductions/traduction.json"
+import { Association, signUp } from "./request";
+import { useNavigate } from "react-router-dom";
 
-export function SignUp() {
+export interface SignUpProps {
+    asso: Association
+}
+
+export function SignUp(props: SignUpProps) {
+    const [password, setPassword] = useState<string>("")
+    const [email, setEmail] = useState<string>("")
+    const [firstName, setFirstName] = useState<string>("")
+    const [lastName, setLastName] = useState<string>("")
+    const [address, setAddress] = useState<string>("")
+    const navigate = useNavigate()
+
+    const handleSignUp = async () => {
+        await signUp(props.asso.domainName, {email,password,firstName,lastName,address})
+        navigate("/" + props.asso.domainName)
+    }
+    
     return (
         <div className="div_center div_background_black">
             <div className="div_background_black_degrade">

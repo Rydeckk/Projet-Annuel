@@ -9,64 +9,71 @@ import { Login } from "./Login";
 import "../class/classes.css"
 import { SignUp } from "./SignUp";
 import { Donate } from "./donate";
+import { Association, getAssoByDomainName } from "./request";
 
-export function verifDomainName(domainName: string): string | null {
-  fetch("http://vps-1d054ff8.vps.ovh.net:3000/association?" + new URLSearchParams({
-    domainName: domainName
-  }).toString(), {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    redirect: 'follow'
-  })
-  .then((response) => {
-    console.log(response.json())
-  })
-  .then((data) => {
-    console.log(data)
-  })
-  .catch((error) => {
-    console.log("error : " + error)
-    return null
-  })
-
-  return null
+export interface AppProps {
+  asso: Association
 }
 
-export async function App() {
+export function App(props: AppProps) {
   const [isMenuTopVisible, setIsMenuTopVisible] = useState(true)
-  const location = useLocation();
-  const listUrl = location.pathname.split("/")
-
-  const domainName = verifDomainName(listUrl[1]) 
 
   useEffect(() => {
-    const pathsWithMenu = [domainName + '/', domainName + '/about', domainName + '/event', domainName + '/calendar',domainName + '/donate'];
-
-    setIsMenuTopVisible(pathsWithMenu.includes(location.pathname));
-  }, [location.pathname]);
+    if(props.asso !== null) {
+      const pathsWithMenu = [
+        '/' + props.asso.domainName
+        , '/' + props.asso.domainName + '/about'
+        , '/' + props.asso.domainName + '/event'
+        , '/' + props.asso.domainName + '/calendar'
+        , '/' + props.asso.domainName + '/donate'];
+      setIsMenuTopVisible(pathsWithMenu.includes(location.pathname));
+    }
+  }, [location.pathname, props.asso]);
 
   return (
     <div>
-      {isMenuTopVisible && <Menu_top />}
+      {isMenuTopVisible && <Menu_top asso={props.asso}/>}
       <Routes>
-        <Route path=":domainName/" element={<Home />}/>
-        <Route path=":domainName/about" element={<About />} />
-        <Route path=":domainName/event" element={<Events />} />
-        <Route path=":domainName/calendar" element={<Calendar />} />
-        <Route path=":domainName/login" element={<Login />} />
-        <Route path=":domainName/signup" element={<SignUp />} />
-        <Route path=":domainName/donate" element={<Donate />} />
+        <Route path={"/"+props.asso.domainName} element={<Home />}/>
+        <Route path={"/"+props.asso.domainName + "/about"} element={<About asso={props.asso}/>} />
+        <Route path={"/"+props.asso.domainName + "/event"} element={<Events asso={props.asso}/>} />
+        <Route path={"/"+props.asso.domainName + "/calendar"} element={<Calendar asso={props.asso}/>} />
+        <Route path={"/"+props.asso.domainName + "/login"} element={<Login asso={props.asso}/>} />
+        <Route path={"/"+props.asso.domainName + "/signup"} element={<SignUp asso={props.asso}/>} />
+        <Route path={"/"+props.asso.domainName + "/donate"} element={<Donate asso={props.asso}/>} />
       </Routes>
     </div>
   );
 }
 
 export default function AppWrapper() {
-  return (
-    <Router>
-      <App />
-    </Router>
-  );
+  const [asso, setAsso] = useState<Association | null>(null);
+  const location = useLocation();
+  const listUrl = location.pathname.split("/")
+
+  useEffect(() => {
+    const verifDomain = async () => {
+      const resultAsso = await getAssoByDomainName(listUrl[1])
+      if(resultAsso !== null) {
+        setAsso(resultAsso)
+      }
+    }
+    
+    verifDomain()
+  }, [])
+
+  if(asso !== null) {
+    return (
+      <App asso={asso}/>
+      
+    );
+  } else {
+    return (
+      <div>
+        <p style={{backgroundColor: "white"}}>Error 404</p>
+        <p style={{backgroundColor: "white"}}>Bad domain Name</p>
+      </div>
+    )
+  }
+  
 }
