@@ -2,20 +2,21 @@ import React, { useState } from "react";
 import traduction from "../traductions/traduction.json"
 import { Association, login } from "./request";
 import { redirect, useNavigate } from "react-router-dom";
+import { useAssoContext } from "./main";
 
-export interface LoginProps {
-    asso: Association
-}
-
-export function Login(props: LoginProps) {
+export function Login() {
     const [password, setPassword] = useState<string>("")
     const [email, setEmail] = useState<string>("")
     const navigate = useNavigate()
+    const asso = useAssoContext()
 
     const handleLogin = async () => {
-        await login(props.asso.domainName, {email,password})
-        navigate("/" + props.asso.domainName)
+        if(asso.asso !== null) {
+            await login(asso.asso.domainName, {email,password})
+            navigate("/" + asso.asso.domainName)
+        }
     }
+        
 
     return (
         <div className="div_center div_background_black">

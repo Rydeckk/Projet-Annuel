@@ -48,7 +48,7 @@ export type Evenement = {
   }
 
   export async function signUp(domainName: string, user: UserInscription) {
-    const response = await fetch("http://vps-1d054ff8.vps.ovh.net:3000/auth/login?" + new URLSearchParams({
+    const response = await fetch("http://vps-1d054ff8.vps.ovh.net:3000/auth/signup?" + new URLSearchParams({
       domainName: domainName
     }).toString(), {
       method: 'POST',
@@ -56,8 +56,9 @@ export type Evenement = {
         'Content-Type': 'application/json'
       },
       redirect: 'follow',
-      body: JSON.stringify({email: user.email, password: user.password, firstname: user.firstName, lastname: user.lastName, address: user.address})
+      body: JSON.stringify({email: user.email, password: user.password, firstName: user.firstName, lastName: user.lastName, address: user.address})
     })
+    
   }
 
   export async function login(domainName: string, user: UserConnexion) {
