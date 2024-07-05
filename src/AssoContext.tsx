@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useEffect, useState } from "react"
 import { useLocation } from "react-router-dom";
-import { Association, getAssoByDomainName } from "./request";
+import { Association, getAssoByDomainName } from "./request/request";
 import * as React from "react"
 
 export interface AssoContextType {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import traduction from "../traductions/traduction.json"
-import { Association, logout } from "./request";
+import { Association, logout } from "./request/request";
 import { useNavigate } from "react-router-dom";
 import { useAssoContext } from "./main";
 

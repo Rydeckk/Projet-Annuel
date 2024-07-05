@@ -1,3 +1,5 @@
+import { useAssoContext } from "../main"
+
 export type Association = {
     id: number,
     description: string,
@@ -16,15 +18,6 @@ export type UserInscription = {
     email: string,
     password: string,
     address: string
-}
-
-export type Evenement = {
-    id: number,
-    name: string,
-    type: string,
-    isPublic: boolean,
-    beginDate: Date,
-    endDate: Date
 }
   
   export async function getAssoByDomainName(domainName: string): Promise<Association | null> {
@@ -86,19 +79,4 @@ export type Evenement = {
       })
 
       localStorage.removeItem(domainName+'-token')
-  }
-
-  export async function getListEvent(domainName: string): Promise<{event: Array<Evenement>}> {
-    const headers = new Headers({'Content-Type': 'application/json', 'Authorization': 'Bearer '+ localStorage.getItem(domainName+"-token")})
-    const response = await fetch("http://vps-1d054ff8.vps.ovh.net:3000/association/mine/event", {
-        
-        method: 'GET',
-        headers: headers
-      })
-
-      const data = await response.json()
-      const events = data.events
-      return {
-        event: events || []
-      }
   }

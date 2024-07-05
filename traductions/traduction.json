@@ -14,5 +14,8 @@
     "firstName": "Prénom",
     "lastName": "Nom",
     "address": "Adresse",
-    "signup_form": "Inscription"
+    "signup_form": "Inscription",
+    "save": "Sauvegarder",
+    "delete": "Supprimer",
+    "cancel": "Annuler"
 }

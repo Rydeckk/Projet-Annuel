@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import traduction from "../traductions/traduction.json"
-import { Association, login, signUp } from "./request";
+import { Association, login, signUp } from "./request/request";
 import { useNavigate } from "react-router-dom";
 import { useAssoContext } from "./main";
 
