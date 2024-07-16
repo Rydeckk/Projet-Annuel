@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import traduction from "../traductions/traduction.json"
-import { Event } from "./Event";
-import { useAssoContext } from "./main";
-import { createEvent, deleteEvent, Evenement, getListEvent, updateEvent } from "./request/requestEvent";
-import { PopupEvent } from "./popupEvent";
+import traduction from "../../traductions/traduction.json"
+import { Event } from "../component/Event";
+import { useAssoContext } from "../main";
+import { createEvent, deleteEvent, Evenement, getListEvent, updateEvent } from "../request/requestEvent";
+import { PopupEvent } from "../component/popupEvent";
 
 
 export function Events() {
@@ -31,6 +31,7 @@ export function Events() {
     }
 
     const onUpdate = async (eventUpdated: Evenement) => {
+        console.log(eventUpdated)
         setEventList(eventList.map((event) => (event.id === eventUpdated.id ? eventUpdated : event)))
         if(asso.asso) {
             updateEvent(eventUpdated,asso.asso.domainName)
@@ -63,8 +64,8 @@ export function Events() {
     return (
         <div>
             <h1>{traduction.event}</h1>
-            <div>
-                <div style={{paddingTop: "20px"}}>
+            <div style={{display: "flex"}}>
+                <div style={{display: "flex", flexDirection: "row", paddingTop: "20px", width: "fit-content"}}>
                     {eventList.map((event) => (
                         <Event 
                         key={event.id} 
@@ -73,8 +74,8 @@ export function Events() {
                         onDelete={() => onDelete(event)}></Event>
                     ))}
                 </div>
-                <div>
-                    <img src="/icone/add.png" onClick={togglePopup}></img>
+                <div style={{paddingTop: "35px"}}>
+                    <img src="/icone/add.png" onClick={togglePopup} style={{height:"30px", width: "30px"}} className="clickable-image"></img>
                 </div>
 
                 <PopupEvent 

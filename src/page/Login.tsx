@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import traduction from "../traductions/traduction.json"
-import { Association, login } from "./request/request";
+import traduction from "../../traductions/traduction.json"
+import { Association, login } from "../request/request";
 import { redirect, useNavigate } from "react-router-dom";
-import { useAssoContext } from "./main";
+import { useAssoContext } from "../main";
 
 export function Login() {
     const [password, setPassword] = useState<string>("")

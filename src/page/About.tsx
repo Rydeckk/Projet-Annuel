@@ -1,6 +1,6 @@
 import React from "react";
-import traduction from "../traductions/traduction.json"
-import { useAssoContext } from "./main";
+import traduction from "../../traductions/traduction.json"
+import { useAssoContext } from "../main";
 
 export function About() {
     const asso = useAssoContext()

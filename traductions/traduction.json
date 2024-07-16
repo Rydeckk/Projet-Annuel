@@ -17,5 +17,15 @@
     "signup_form": "Inscription",
     "save": "Sauvegarder",
     "delete": "Supprimer",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "isPublic": "Est public",
+    "welcomeMySpace": "Bienvenue sur votre espace",
+    "myinfo": "Mes informations",
+    "myged": "Mon coffre fort numérique",
+    "mytransactions": "Mes transactions",
+    "myevent": "Mes événements",
+    "master": "Modification association",
+    "myMemberShip": "Mon adhésion"
+
+
 }

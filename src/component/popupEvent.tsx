@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import traduction from '../traductions/traduction.json'
-import { Evenement } from './request/requestEvent';
-import { formatDateToLocalISOString } from './utils/utils-function';
+import traduction from '../../traductions/traduction.json'
+import { Evenement } from '../request/requestEvent';
+import { formatDateToLocalISOString } from '../utils/utils-function';
 
 export type PropsPopUp = {
     isOpen: boolean
@@ -43,10 +43,10 @@ export function PopupEvent ({ isOpen, handleClose, onSave, onDelete, event }: Pr
                         <img src='/icone/return.png' onClick={handleClose} className='taille_icone'></img>
                         <div className="content">
                             <div className="div_padding5_vertical">
-                                <input value={event?.name} className="input" onChange={(e) => setName(e.target.value)}></input>
+                                <input value={name} className="input" onChange={(e) => setName(e.target.value)}></input>
                             </div>
                             <div className="div_padding5_vertical">
-                                <input value={event?.type} className="input" onChange={(e) => setType(e.target.value)}></input>
+                                <input value={type} className="input" onChange={(e) => setType(e.target.value)}></input>
                             </div>
                             <div className="div_padding5_vertical">
                                 <input type="datetime-local" value={beginDate} className="input" onChange={(e) => setBeginDate(e.target.value)}></input>
@@ -55,6 +55,8 @@ export function PopupEvent ({ isOpen, handleClose, onSave, onDelete, event }: Pr
                                 <input type="datetime-local" value={endDate} className="input" onChange={(e) => setEndDate(e.target.value)}></input>
                             </div>
                             <div className="div_padding5_vertical">
+                                <label style={{width: "fit-content", paddingRight:"10px"}}>{traduction.isPublic}</label>
+                                
                                 <input type="checkbox" checked={isPublic} onChange={(e) => setIsPublic(e.target.checked)}></input>
                             </div>
                         </div>

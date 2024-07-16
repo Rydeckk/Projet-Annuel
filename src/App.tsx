@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Menu_top } from "./menu_top";
-import { Home } from "./Home";
-import { Route, Routes } from "react-router-dom";
-import { About } from "./About";
-import { Calendar } from "./Calendar";
-import { Events } from "./Events";
-import { Login } from "./Login";
+import { Menu_top } from "./component/menu_top";
+import { Home } from "./page/Home";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { About } from "./page/About";
+import { Calendar } from "./page/Calendar";
+import { Events } from "./page/Events";
+import { Login } from "./page/Login";
 import "../class/classes.css"
-import { SignUp } from "./SignUp";
-import { Donate } from "./donate";
+import { SignUp } from "./page/SignUp";
+import { Donate } from "./page/donate";
 import { useAssoContext } from "./main";
+import { Profile } from "./page/Profile";
 
 export function App() {
   const [isMenuTopVisible, setIsMenuTopVisible] = useState(true)
@@ -18,18 +19,18 @@ export function App() {
   useEffect(() => {
     if(asso.asso !== null) {
       const pathsWithMenu = [
-        '/' + asso.asso.domainName
-        , '/' + asso.asso.domainName + '/about'
-        , '/' + asso.asso.domainName + '/event'
-        , '/' + asso.asso.domainName + '/calendar'
-        , '/' + asso.asso.domainName + '/donate'];
-      setIsMenuTopVisible(pathsWithMenu.includes(location.pathname));
+        asso.asso.domainName
+        , asso.asso.domainName + 'about'
+        , asso.asso.domainName + 'event'
+        , asso.asso.domainName + 'calendar'
+        , asso.asso.domainName + 'donate'];
+      setIsMenuTopVisible(pathsWithMenu.includes(location.pathname.replace(/\//g,"")));
     }
   }, [location.pathname, asso.asso]);
 
   if (asso.asso !== null) {
     return (
-      <div>
+      <div className="div_root">
         {isMenuTopVisible && <Menu_top />}
         <Routes>
           <Route path={"/"+asso.asso.domainName} element={<Home />}/>
@@ -39,6 +40,8 @@ export function App() {
           <Route path={"/"+asso.asso.domainName + "/login"} element={<Login />} />
           <Route path={"/"+asso.asso.domainName + "/signup"} element={<SignUp />} />
           <Route path={"/"+asso.asso.domainName + "/donate"} element={<Donate />} />
+          <Route path={"/"+asso.asso.domainName + "/myprofile/*"} element={<Profile />} />
+          <Route path={"/"+asso.asso.domainName + "/master"} />
         </Routes>
       </div>
     );

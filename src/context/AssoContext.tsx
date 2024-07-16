@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useEffect, useState } from "react"
 import { useLocation } from "react-router-dom";
-import { Association, getAssoByDomainName } from "./request/request";
+import { Association, getAssoByDomainName } from "../request/request";
 import * as React from "react"
 
 export interface AssoContextType {
@@ -22,19 +22,26 @@ export const AssoContext = createContext<AssoContextType>({
 
 export function AssoProvider({children}: Props) {
     const [asso, setAsso] = useState<Association | null>(null);
+    const [domain, setDomaine] = useState<string>("")
     const location = useLocation();
     const listUrl = location.pathname.split("/")
+
+    useEffect(() => {
+        setDomaine(listUrl[1])
+    })
   
     useEffect(() => {
-      const verifDomain = async () => {
-        const resultAsso = await getAssoByDomainName(listUrl[1])
-        if(resultAsso !== null) {
-          setAsso(resultAsso)
+        const verifDomain = async () => {
+            const resultAsso = await getAssoByDomainName(domain)
+            if(resultAsso !== null) {
+                setAsso(resultAsso)
+            }
         }
-      }
-      
-      verifDomain()
-    }, [])
+
+        if(domain !== "") {
+            verifDomain()
+        }
+    }, [domain])
 
     return (
         <AssoContext.Provider

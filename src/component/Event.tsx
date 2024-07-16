@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import traduction from "../traductions/traduction.json"
-import { Evenement } from "./request/requestEvent";
+import traduction from "../../traductions/traduction.json"
+import { Evenement } from "../request/requestEvent";
 import { PopupEvent } from "./popupEvent";
 
 export type EventProps = {
@@ -18,8 +18,8 @@ export function Event(props: EventProps) {
         setIsOpen(!isOpen);
     };
 
-    const handleSave = () => {
-        props.onSave(props.event)
+    const handleSave = (eventUpdated: Evenement) => {
+        props.onSave(eventUpdated)
     }
 
     useEffect(() => {
