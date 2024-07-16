@@ -1,8 +1,8 @@
 Mise en place :
-- installer les node-modules
+- installer les node-modules (npm i)
 - Renseigner les différentes variables d'envrionnements
 
-API Cinema fonctionnement :
+API Association fonctionnement :
 - Pour commencer il faut créer un utilisateur (Pour se mettre admin il faudra aller dans la base pour le premier utilisateur)
   Un compte bancaire est créé et associé à l'utilisateur en même temps
 - s'authentifier
