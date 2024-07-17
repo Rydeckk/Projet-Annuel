@@ -9,6 +9,8 @@ import { Token } from "../database/entities/token";
 import { Role } from "../database/entities/role";
 import { authMiddleware } from "./middleware/auth-middleware";
 import { Request } from "../types/express"
+import { AssociationUseCase } from "../domain/association-usecase";
+import { getConnectedUser } from "../domain/user-usecase";
 
 export const UserHandler = (app: express.Express) => {
     /**
@@ -57,7 +59,7 @@ export const UserHandler = (app: express.Express) => {
     app.post('/auth/signup', async (req: Request, res: Response) => {
         try {
 
-            const validationResult = createUserValidation.validate(req.body)
+            const validationResult = createUserValidation.validate({...req.query, ...req.body})
             if (validationResult.error) {
                 res.status(400).send(generateValidationErrorMessage(validationResult.error.details))
                 return
@@ -72,6 +74,13 @@ export const UserHandler = (app: express.Express) => {
                 return
             }
 
+            const assoUseCase = new AssociationUseCase(AppDataSource)
+            const assoFound = await assoUseCase.getListAssociation({domainName: createUserRequest.domainName, page: 1, limit: 1})
+
+            if(assoFound.associations.length < 0) {
+                res.status(404).send({"error": "Domain Name not found"})
+            }
+
             const userRepository = AppDataSource.getRepository(User)
             const user = await userRepository.save({
                 email: createUserRequest.email,
@@ -79,7 +88,8 @@ export const UserHandler = (app: express.Express) => {
                 firstName: createUserRequest.firstName,
                 lastName: createUserRequest.lastName,
                 address: createUserRequest.address,
-                role: roleFound
+                role: roleFound,
+                association: assoFound.associations[0]
             });
 
             res.status(201).send({ 
@@ -133,15 +143,22 @@ export const UserHandler = (app: express.Express) => {
     app.post('/auth/login', async (req: Request, res: Response) => {
         try {
 
-            const validationResult = LoginUserValidation.validate(req.body)
+            const validationResult = LoginUserValidation.validate({...req.query, ...req.body})
             if (validationResult.error) {
                 res.status(400).send(generateValidationErrorMessage(validationResult.error.details))
                 return
             }
             const loginUserRequest = validationResult.value
 
+            const assoUseCase = new AssociationUseCase(AppDataSource)
+            const assoFound = await assoUseCase.getListAssociation({domainName: loginUserRequest.domainName, page: 1, limit: 1})
+
+            if(assoFound.associations.length < 0) {
+                res.status(404).send({"error": "Domain Name not found"})
+            }
+
             // valid user exist
-            const user = await AppDataSource.getRepository(User).findOneBy({ email: loginUserRequest.email });
+            const user = await AppDataSource.getRepository(User).findOneBy({ email: loginUserRequest.email, association: assoFound.associations[0] });
 
             if (!user) {
                 res.status(400).send({ error: "username or password not valid" })
@@ -233,6 +250,19 @@ export const UserHandler = (app: express.Express) => {
             return
         }
     })
+
+    app.get("/auth/info", authMiddleware, async (req: Request, res: Response) => {
+        const userId = +req.user.userId
+        const userFound = await getConnectedUser(userId, AppDataSource)
+        if(userFound) {
+            res.status(200).send(userFound)
+        } else {
+            res.status(404).send({"error": "User not found"})
+        }
+
+        return
+    })
+
 }
 
 

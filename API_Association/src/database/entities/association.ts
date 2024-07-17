@@ -58,7 +58,7 @@ export class Association {
     planning: Planning[]
 
     @OneToMany(() => Assemblee, assemblee => assemblee.association)
-    assemblee: Assemblee
+    assemblee: Assemblee[]
 
     @ManyToOne(() => Theme, theme => theme.associations)
     theme: Theme
@@ -67,7 +67,7 @@ export class Association {
     ged: GED
 
     constructor(id: number, name: string, description: string, domainName: string, users: User[], materiels: Materiel[], transactions: CompteTransaction[], typeAdhesions: TypeAdhesion[], 
-        evenements: Evenement[] , roles: Role[], locaux: Local[], votes: Vote[], sondages: Sondage[], planning: Planning[], assemblee: Assemblee, theme: Theme, ged: GED ) {
+        evenements: Evenement[] , roles: Role[], locaux: Local[], votes: Vote[], sondages: Sondage[], planning: Planning[], assemblee: Assemblee[], theme: Theme, ged: GED ) {
         this.id = id,
         this.name = name,
         this.description = description,

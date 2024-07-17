@@ -3,6 +3,7 @@ import { initRoutes } from "./handlers/routes";
 import { AppDataSource } from "./database/database";
 import { swaggerDocs } from "./swagger/swagger";
 import cors from "cors"
+import "./Cron/cron"
 
 
 const main = async () => {

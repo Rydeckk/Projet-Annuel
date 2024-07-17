@@ -35,7 +35,8 @@ export const createUserValidation = Joi.object<CreateUserValidationRequest>({
     password: Joi.string().min(8).required(),
     firstName: Joi.string().required(),
     lastName: Joi.string().required(),
-    address: Joi.string().required()
+    address: Joi.string().required(),
+    domainName: Joi.string().required()
 }).options({ abortEarly: false });
 
 export interface CreateUserValidationRequest {
@@ -43,7 +44,8 @@ export interface CreateUserValidationRequest {
     password: string,
     firstName: string,
     lastName: string,
-    address: string
+    address: string,
+    domainName: string
 }
 
 /**
@@ -67,11 +69,13 @@ export interface CreateUserValidationRequest {
 export const LoginUserValidation = Joi.object<LoginUserValidationRequest>({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
+    domainName: Joi.string().required()
 }).options({ abortEarly: false });
 
 export interface LoginUserValidationRequest {
     email: string
-    password: string
+    password: string,
+    domainName: string
 }
 
 export interface GetUsersRequest {

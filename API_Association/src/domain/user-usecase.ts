@@ -3,6 +3,7 @@ import { User } from "../database/entities/user";
 import { Token } from "../database/entities/token";
 import { Association } from "../database/entities/association";
 import { Role } from "../database/entities/role";
+import { Assemblee } from "../database/entities/assemblee";
 
 export interface ListUserFilter {
     page: number,
@@ -155,6 +156,31 @@ export class UserUseCase {
 
         await this.db.getRepository(User).remove(userFound)
         return deletedUser
+    }
+
+    async getListAdherant(asso?: Association, isSuperAdmin?: boolean, assemblee?: Assemblee): Promise<{ users: User[]; }> {
+        const query = this.db.createQueryBuilder(User, 'user')
+        query.innerJoin('user.role','role')
+        query.innerJoinAndSelect('user.adhesion', 'adhesion')
+        query.innerJoin('user.association','asso')
+        query.where('adhesion.isActive = :isActive', {isActive: true})
+
+        if(isSuperAdmin !== undefined) {
+            query.andWhere("role.isSuperAdmin = :isSuperAdmin", {isSuperAdmin: isSuperAdmin})
+        }
+
+        if(asso) {
+            query.andWhere("asso.id = :assoId", {assoId: asso.id})
+        }
+
+        if(assemblee) {
+            query.andWhere('adhesion.endDate >= :endDateAssemblee', {endDateAssemblee: assemblee.endDate})
+        }
+
+        const users = await query.getMany()
+        return {
+            users
+        }
     }
 }
 

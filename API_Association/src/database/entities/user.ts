@@ -35,7 +35,7 @@ export class User {
     @ManyToOne(() => Association, association => association.users, {nullable: true})
     association: Association
 
-    @ManyToOne(() => Adhesion, adhesion => adhesion.users)
+    @ManyToOne(() => Adhesion, adhesion => adhesion.users, {onDelete: 'CASCADE'})
     adhesion: Adhesion
 
     @CreateDateColumn({type: "datetime"})

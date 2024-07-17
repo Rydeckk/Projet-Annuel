@@ -9,5 +9,5 @@ export interface GetTransactionsRequest {
 export const getTransactionsValidation = Joi.object<GetTransactionsRequest>({
     page: Joi.number().min(1).optional(),
     limit: Joi.number().min(1).optional(),
-    type: Joi.string().valid('depot', 'retrait', 'achat_billet').optional()
+    type: Joi.string().valid('don').optional()
 })

@@ -1,6 +1,6 @@
 import { Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Association } from "./association";
-import { DocumentGED } from "./document";
+import { Fichier } from "./fichier";
 
 @Entity({name: "GED"})
 export class GED {
@@ -10,12 +10,12 @@ export class GED {
     @OneToMany(() => Association, association => association.ged)
     associations: Association[]
 
-    @OneToMany(() => DocumentGED, document => document.ged)
-    documents: DocumentGED[]
+    @OneToMany(() => Fichier, files => files.ged)
+    files: Fichier[]
 
-    constructor(id: number, associations: Association[], documents: DocumentGED[]) {
+    constructor(id: number, associations: Association[], files: Fichier[]) {
         this.id = id,
         this.associations = associations,
-        this.documents = documents
+        this.files = files
     }
 }

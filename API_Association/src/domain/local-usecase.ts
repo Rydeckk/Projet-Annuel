@@ -17,6 +17,8 @@ export interface UpdateLocalParams {
     city?: string,
     zip?: string,
     address?: string,
+    phone?: string,
+    email?: string,
     associationId?: number
 }
 
@@ -78,6 +80,14 @@ export class LocalUseCase {
 
         if(localParams.zip !== undefined) {
             localFound.zip = localParams.zip
+        }
+
+        if(localParams.phone !== undefined) {
+            localFound.phone = localParams.phone
+        }
+
+        if(localParams.email !== undefined) {
+            localFound.email = localParams.email
         }
 
         if(localParams.address !== undefined) {

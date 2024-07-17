@@ -20,7 +20,7 @@ import { Local } from "../database/entities/local";
 import { createMaterielValidation, getListMaterielValidation, getMaterielValidation, updateMaterielValidation } from "./validators/materiel-validator";
 import { Materiel } from "../database/entities/materiel";
 import { MaterielUseCase } from "../domain/materiel-usecase";
-import { createEvenementValidation, getEvenementsValidation, getEvenementValidation, updateEvenementValidation } from "./validators/evenement-validator";
+import { createEvenementValidation, getEvenementsPublicValidation, getEvenementsValidation, getEvenementValidation, updateEvenementValidation } from "./validators/evenement-validator";
 import { Evenement } from "../database/entities/evenement";
 import { EvenementUseCase } from "../domain/evenement-usecase";
 import { createVoteValidation, getVotesValidation, getVoteValidation, updateVoteValidation } from "./validators/vote-validator";
@@ -32,27 +32,27 @@ import { ReponseUseCase } from "../domain/reponse-usecase";
 import { createTypeAdhesionValidation, getListTypeAdhesionValidation, getTypeAdhesionValidation, updateTypeAdhesionValidation } from "./validators/typeAdhesion-validator";
 import { TypeAdhesionUseCase } from "../domain/typeAdhesion-usecase";
 import { TypeAdhesion } from "../database/entities/typeAdhesion";
-import { createDocumentValidation, getDocumentValidation, getListDocumentValidation, updateDocumentValidation } from "./validators/document-validator";
-import { DocumentGED } from "../database/entities/document";
-import { DocumentGEDUseCase } from "../domain/document-usecase";
 import { Adhesion } from "../database/entities/adhesion";
 import { getAdhesionValidation, getListAdhesionValidation, updateAdhesionValidation } from "./validators/adhesion-validator";
 import { AdhesionUseCase } from "../domain/adhesion-usecase";
 import { CompteTransaction } from "../database/entities/transaction";
 import { createDonValidation } from "./validators/don-validator";
-import { createDossierValidation, getDossierValidation, getListDossierValidation, updateDossierValidation } from "./validators/dossier-validator"
-import { DossierUseCase } from "../domain/dossier-usecase";
-import { Dossier } from "../database/entities/dossier";
+import { createFichierValidation, getFichierValidation, getListFichierValidation, updateFichierValidation, verifNameUnique } from "./validators/fichier-validator"
+import { FichierUseCase, storage, uploadCreationFiles } from "../domain/fichier-usecase"
+import { Fichier } from "../database/entities/fichier";
 import { createPlanningValidation, getPlanningsValidation, getPlanningValidation, updatePlanningValidation } from "./validators/planning-validator";
 import { Planning } from "../database/entities/planning";
 import { PlanningUseCase } from "../domain/planning-usecase";
-import { User } from "../database/entities/user";
 import { Sondage } from "../database/entities/sondage";
 import { SondageUseCase } from "../domain/sondage-usecase";
 import { createSondageValidation, getSondageValidation, getSondagesValidation, updateSondageValidation } from "./validators/sondage-validator";
 import { createAssembleeValidation, getAssembleesValidation, getAssembleeValidation, updateAssembleeValidation } from "./validators/assemblee-validator";
 import { AssembleeUseCase } from "../domain/assemblee-usecase";
 import { Assemblee } from "../database/entities/assemblee";
+import fs from "fs-extra"
+import multer from "multer";
+import { User } from "../database/entities/user";
+import { bodyMailAdhesion, bodyMailAssemblee, sendEmail } from "../service/mail";
 
 export const initRoutes = (app: express.Express) => {
 
@@ -235,7 +235,7 @@ export const initRoutes = (app: express.Express) => {
             const roleUseCase = new RoleUseCase(AppDataSource)
             const selectedRole = await roleUseCase.getRole(getRoleRequest.id, userFound?.association, false)
             if (selectedRole === null) {
-                res.status(404).send({"error": `Role ${getRoleRequest.id} not found`})
+                res.status(404).send({error: `Role ${getRoleRequest.id} not found`})
                 return
             }
             res.status(200).send(selectedRole)
@@ -367,7 +367,7 @@ export const initRoutes = (app: express.Express) => {
             const roleUsecase = new RoleUseCase(AppDataSource);
             const updatedRole = await roleUsecase.updateRole(updateRoleRequest.id, { ...updateRoleRequest }, userFound?.association, false)
             if (updatedRole === null) {
-                res.status(404).send({"error": `Role ${updateRoleRequest.id} not found`})
+                res.status(404).send({error: `Role ${updateRoleRequest.id} not found`})
                 return
             }
             res.status(200).send(updatedRole)
@@ -428,7 +428,7 @@ export const initRoutes = (app: express.Express) => {
             const roleUseCase = new RoleUseCase(AppDataSource)
             const deletedRole = await roleUseCase.deleteRole(getRoleRequest.id, userFound?.association, false)
             if (deletedRole === null) {
-                res.status(404).send({"error": `Role ${getRoleRequest.id} not found`})
+                res.status(404).send({error: `Role ${getRoleRequest.id} not found`})
                 return
             }
             res.status(200).send(`Role deleted : ${deletedRole.name}`)
@@ -561,7 +561,7 @@ export const initRoutes = (app: express.Express) => {
             const userUseCase = new UserUseCase(AppDataSource)
             const selectedUser = await userUseCase.getUser(getUserRequest.id,userFound?.association,false)
             if (selectedUser === null) {
-                res.status(404).send({"error": `User ${getUserRequest.id} not found`})
+                res.status(404).send({error: `User ${getUserRequest.id} not found`})
                 return
             }
             res.status(200).send(selectedUser)
@@ -623,7 +623,7 @@ export const initRoutes = (app: express.Express) => {
             const userUseCase = new UserUseCase(AppDataSource)
             const selectedUser = await userUseCase.updateUser(updateUserRequest.id,{...updateUserRequest},userFound?.association,false)
             if (selectedUser === null) {
-                res.status(404).send({"error": `User ${updateUserRequest.id} not found`})
+                res.status(404).send({error: `User ${updateUserRequest.id} not found`})
                 return
             }
             res.status(200).send(selectedUser)
@@ -680,7 +680,7 @@ export const initRoutes = (app: express.Express) => {
                 const userUseCase = new UserUseCase(AppDataSource)
                 const deletedUser = await userUseCase.deleteUser(deleteUserRequest.id,userFound?.association,false)
                 if (deletedUser === null) {
-                    res.status(404).send({"error": `User ${deleteUserRequest.id} not found`})
+                    res.status(404).send({error: `User ${deleteUserRequest.id} not found`})
                     return
                 }
                 res.status(200).send(`User deleted : ${deletedUser.id}`)
@@ -730,7 +730,7 @@ export const initRoutes = (app: express.Express) => {
             const localUseCase = new LocalUseCase(AppDataSource)
             const localFound = await localUseCase.getLocal(localRequest.id,userFound?.association)
             if (localFound === null) {
-                res.status(404).send({"error": `Local ${localRequest.id} not found`})
+                res.status(404).send({error: `Local ${localRequest.id} not found`})
                 return
             }
             res.status(200).send(localFound)
@@ -785,7 +785,7 @@ export const initRoutes = (app: express.Express) => {
             const localUseCase = new LocalUseCase(AppDataSource)
             const localFound = await localUseCase.updateLocal(updatelocalRequest.id,{...updatelocalRequest},userFound?.association)
             if (localFound === null) {
-                res.status(404).send({"error": `Local ${updatelocalRequest.id} not found`})
+                res.status(404).send({error: `Local ${updatelocalRequest.id} not found`})
                 return
             }
             res.status(200).send(localFound)
@@ -812,7 +812,7 @@ export const initRoutes = (app: express.Express) => {
             const localUseCase = new LocalUseCase(AppDataSource)
             const localFound = await localUseCase.deleteLocal(deletelocalRequest.id,userFound?.association)
             if (localFound === null) {
-                res.status(404).send({"error": `Local ${deletelocalRequest.id} not found`})
+                res.status(404).send({error: `Local ${deletelocalRequest.id} not found`})
                 return
             }
             res.status(200).send(localFound)
@@ -863,7 +863,7 @@ export const initRoutes = (app: express.Express) => {
             const materielUseCase = new MaterielUseCase(AppDataSource)
             const materielFound = await materielUseCase.getMateriel(materielRequest.id,userFound?.association)
             if (materielFound === null) {
-                res.status(404).send({"error": `Materiel ${materielRequest.id} not found`})
+                res.status(404).send({error: `Materiel ${materielRequest.id} not found`})
                 return
             }
             res.status(200).send(materielFound)
@@ -918,7 +918,7 @@ export const initRoutes = (app: express.Express) => {
             const materielUseCase = new MaterielUseCase(AppDataSource)
             const materielFound = await materielUseCase.updateMateriel(updateMaterielRequest.id,{...updateMaterielRequest},userFound?.association)
             if (materielFound === null) {
-                res.status(404).send({"error": `Materiel ${updateMaterielRequest.id} not found`})
+                res.status(404).send({error: `Materiel ${updateMaterielRequest.id} not found`})
                 return
             }
             res.status(200).send(materielFound)
@@ -945,7 +945,7 @@ export const initRoutes = (app: express.Express) => {
             const materielUseCase = new MaterielUseCase(AppDataSource)
             const materielFound = await materielUseCase.deleteMateriel(deleteMaterielRequest.id,userFound?.association)
             if (materielFound === null) {
-                res.status(404).send({"error": `Materiel ${deleteMaterielRequest.id} not found`})
+                res.status(404).send({error: `Materiel ${deleteMaterielRequest.id} not found`})
                 return
             }
             res.status(200).send(materielFound)
@@ -978,7 +978,7 @@ export const initRoutes = (app: express.Express) => {
             const eventUseCase = new EvenementUseCase(AppDataSource)
             const eventFound = await eventUseCase.getEvenement(eventRequest.id,userFound?.association)
             if (eventFound === null) {
-                res.status(404).send({"error": `Event ${eventRequest.id} not found`})
+                res.status(404).send({error: `Event ${eventRequest.id} not found`})
                 return
             }
             eventFound.attendees.push(userFound)
@@ -1030,7 +1030,7 @@ export const initRoutes = (app: express.Express) => {
             const eventUseCase = new EvenementUseCase(AppDataSource)
             const eventFound = await eventUseCase.getEvenement(eventRequest.id,userFound?.association)
             if (eventFound === null) {
-                res.status(404).send({"error": `Event ${eventRequest.id} not found`})
+                res.status(404).send({error: `Event ${eventRequest.id} not found`})
                 return
             }
             res.status(200).send(eventFound)
@@ -1070,6 +1070,40 @@ export const initRoutes = (app: express.Express) => {
 
     })
 
+    app.get("/association/mine/eventpublic", async (req: Request, res: Response) => {
+        const validation = getEvenementsPublicValidation.validate(req.query)
+
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+            return
+        }
+
+        const getEvenementsRequest = validation.value
+
+        const assoUseCase = new AssociationUseCase(AppDataSource)
+        const assoFound = await assoUseCase.getListAssociation({domainName: getEvenementsRequest.domainName, page: 1, limit: 1})
+
+        if(assoFound.associations.length < 0) {
+            res.status(404).send({error: "Domain Name not found"})
+        }
+
+        let limit = 20
+        if (getEvenementsRequest.limit) {
+            limit = getEvenementsRequest.limit
+        }
+        const page = getEvenementsRequest.page ?? 1
+
+        try {
+            const evenementUseCase = new EvenementUseCase(AppDataSource)
+            const eventFound = await evenementUseCase.getListEvent({...getEvenementsRequest, page, limit, associationId: assoFound.associations[0].id, isPublic: true})
+            res.status(200).send(eventFound)
+
+        } catch (error) {
+            res.status(500).send({ error: "Internal error" })
+        }
+
+    })
+
     app.patch("/association/mine/event/:id", authMiddlewareAdmin ,async (req: Request, res: Response) => {
         const validation = updateEvenementValidation.validate({...req.params,...req.body})
 
@@ -1086,7 +1120,7 @@ export const initRoutes = (app: express.Express) => {
             const eventUseCase = new EvenementUseCase(AppDataSource)
             const eventFound = await eventUseCase.updateEvenement(updateEventRequest.id,{...updateEventRequest},userFound?.association)
             if (eventFound === null) {
-                res.status(404).send({"error": `Event ${updateEventRequest.id} not found`})
+                res.status(404).send({error: `Event ${updateEventRequest.id} not found`})
                 return
             }
             res.status(200).send(eventFound)
@@ -1113,7 +1147,7 @@ export const initRoutes = (app: express.Express) => {
             const eventUseCase = new EvenementUseCase(AppDataSource)
             const eventFound = await eventUseCase.deleteEvenement(deleteEventRequest.id,userFound?.association)
             if (eventFound === null) {
-                res.status(404).send({"error": `Event ${deleteEventRequest.id} not found`})
+                res.status(404).send({error: `Event ${deleteEventRequest.id} not found`})
                 return
             }
             res.status(200).send(eventFound)
@@ -1178,7 +1212,7 @@ export const initRoutes = (app: express.Express) => {
             const voteUseCase = new VoteUseCase(AppDataSource)
             const voteFound = await voteUseCase.getVote(voteRequest.id,userFound?.association)
             if (voteFound === null) {
-                res.status(404).send({"error": `Vote ${voteRequest.id} not found`})
+                res.status(404).send({error: `Vote ${voteRequest.id} not found`})
                 return
             }
             res.status(200).send(voteFound)
@@ -1234,7 +1268,7 @@ export const initRoutes = (app: express.Express) => {
             const voteUseCase = new VoteUseCase(AppDataSource)
             const voteFound = await voteUseCase.updateVote(updateVoteRequest.id,{...updateVoteRequest},userFound?.association)
             if (voteFound === null) {
-                res.status(404).send({"error": `Vote ${updateVoteRequest.id} not found`})
+                res.status(404).send({error: `Vote ${updateVoteRequest.id} not found`})
                 return
             }
             res.status(200).send(voteFound)
@@ -1261,7 +1295,7 @@ export const initRoutes = (app: express.Express) => {
             const voteUseCase = new VoteUseCase(AppDataSource)
             const voteFound = await voteUseCase.deleteVote(deleteVoteRequest.id,userFound?.association)
             if (voteFound === null) {
-                res.status(404).send({"error": `Vote ${deleteVoteRequest.id} not found`})
+                res.status(404).send({error: `Vote ${deleteVoteRequest.id} not found`})
                 return
             }
             res.status(200).send(voteFound)
@@ -1312,7 +1346,7 @@ export const initRoutes = (app: express.Express) => {
             const sondageUseCase = new SondageUseCase(AppDataSource)
             const sondageFound = await sondageUseCase.getSondage(sondageRequest.id,userFound?.association)
             if (sondageFound === null) {
-                res.status(404).send({"error": `Sondage ${sondageRequest.id} not found`})
+                res.status(404).send({error: `Sondage ${sondageRequest.id} not found`})
                 return
             }
             res.status(200).send(sondageFound)
@@ -1368,7 +1402,7 @@ export const initRoutes = (app: express.Express) => {
             const sondageUseCase = new SondageUseCase(AppDataSource)
             const sondageFound = await sondageUseCase.updateSondage(updateSondageRequest.id,{...updateSondageRequest},userFound?.association)
             if (sondageFound === null) {
-                res.status(404).send({"error": `Sondage ${updateSondageRequest.id} not found`})
+                res.status(404).send({error: `Sondage ${updateSondageRequest.id} not found`})
                 return
             }
             res.status(200).send(sondageFound)
@@ -1395,7 +1429,7 @@ export const initRoutes = (app: express.Express) => {
             const sondageUseCase = new SondageUseCase(AppDataSource)
             const sondageFound = await sondageUseCase.deleteSondage(deleteSondageRequest.id,userFound?.association)
             if (sondageFound === null) {
-                res.status(404).send({"error": `Sondage ${deleteSondageRequest.id} not found`})
+                res.status(404).send({error: `Sondage ${deleteSondageRequest.id} not found`})
                 return
             }
             res.status(200).send(sondageFound)
@@ -1514,7 +1548,7 @@ export const initRoutes = (app: express.Express) => {
             const reponseUseCase = new ReponseUseCase(AppDataSource)
             const reponseFound = await reponseUseCase.getReponseSondage(reponseRequest.id,sondageFound,userFound?.association)
             if (reponseFound === null) {
-                res.status(404).send({"error": `Reponse ${reponseRequest.id} not found`})
+                res.status(404).send({error: `Reponse ${reponseRequest.id} not found`})
                 return
             }
             res.status(200).send(reponseFound)
@@ -1570,7 +1604,7 @@ export const initRoutes = (app: express.Express) => {
             const reponseUseCase = new ReponseUseCase(AppDataSource)
             const reponseFound = await reponseUseCase.updateReponseSondage(updateReponseRequest.id,{...updateReponseRequest},userFound?.association)
             if (reponseFound === null) {
-                res.status(404).send({"error": `Reponse ${updateReponseRequest.id} not found`})
+                res.status(404).send({error: `Reponse ${updateReponseRequest.id} not found`})
                 return
             }
             res.status(200).send(reponseFound)
@@ -1597,7 +1631,7 @@ export const initRoutes = (app: express.Express) => {
             const reponseUseCase = new ReponseUseCase(AppDataSource)
             const reponseFound = await reponseUseCase.deleteReponseSondage(deleteReponseRequest.id,deleteReponseRequest.sondageId, userFound?.association)
             if (reponseFound === null) {
-                res.status(404).send({"error": `Reponse ${deleteReponseRequest.id} not found`})
+                res.status(404).send({error: `Reponse ${deleteReponseRequest.id} not found`})
                 return
             }
             res.status(200).send(reponseFound)
@@ -1649,7 +1683,7 @@ export const initRoutes = (app: express.Express) => {
             const typeAdhesionUseCase = new TypeAdhesionUseCase(AppDataSource)
             const typeAdhesionFound = await typeAdhesionUseCase.getTypeAdhesion(typeAdhesionRequest.id,userFound?.association)
             if (typeAdhesionFound === null) {
-                res.status(404).send({"error": `TypeAdhesion ${typeAdhesionRequest.id} not found`})
+                res.status(404).send({error: `TypeAdhesion ${typeAdhesionRequest.id} not found`})
                 return
             }
             res.status(200).send(typeAdhesionFound)
@@ -1704,7 +1738,7 @@ export const initRoutes = (app: express.Express) => {
             const typeAdhesionUseCase = new TypeAdhesionUseCase(AppDataSource)
             const typeAdhesionFound = await typeAdhesionUseCase.updateTypeAdhesion(updateTypeAdhesionRequest.id,{...updateTypeAdhesionRequest},userFound?.association)
             if (typeAdhesionFound === null) {
-                res.status(404).send({"error": `TypeAdhesion ${updateTypeAdhesionRequest.id} not found`})
+                res.status(404).send({error: `TypeAdhesion ${updateTypeAdhesionRequest.id} not found`})
                 return
             }
             res.status(200).send(typeAdhesionFound)
@@ -1731,7 +1765,7 @@ export const initRoutes = (app: express.Express) => {
             const typeAdhesionUseCase = new TypeAdhesionUseCase(AppDataSource)
             const typeAdhesionFound = await typeAdhesionUseCase.deleteTypeAdhesion(deleteTypeAdhesionRequest.id,userFound?.association)
             if (typeAdhesionFound === null) {
-                res.status(404).send({"error": `TypeAdhesion ${deleteTypeAdhesionRequest.id} not found`})
+                res.status(404).send({error: `TypeAdhesion ${deleteTypeAdhesionRequest.id} not found`})
                 return
             }
             res.status(200).send(typeAdhesionFound)
@@ -1780,15 +1814,51 @@ export const initRoutes = (app: express.Express) => {
             const createdAdhesion = await AppDataSource.getRepository(Adhesion).save({
                 beginDate: beginDate,
                 endDate: endDate,
-                users: [userFound],
                 typeAdhesion: typeAdhesionFound
             })
 
-            await AppDataSource.getRepository(CompteTransaction).save({
+            await AppDataSource.getRepository(User).save({...userFound,adhesion: createdAdhesion})
+
+            const trasaction = await AppDataSource.getRepository(CompteTransaction).save({
                 type: "adhesion",
                 montant: typeAdhesionFound.montant,
                 association: userFound.association,
                 user: userFound
+            })
+
+            try {
+                if(process.env.EMAIL_USER) {
+                    sendEmail({
+                        to: userFound.email,
+                        from: process.env.EMAIL_USER,
+                        subject: "Adhésion",
+                        text: bodyMailAdhesion(createdAdhesion, trasaction, userFound)
+                    })
+                }
+            }
+            catch(err) {
+                console.log(err)
+            }
+
+            const assembleeUseCase = new AssembleeUseCase(AppDataSource)
+            const endDateAssemblee = new Date(endDate)
+            endDateAssemblee.setMonth(beginDate.getMonth() + 2)
+            const assembleesFound = await assembleeUseCase.getListAssemblee({page: 1, limit: 300,beginDate: beginDate, endDate: endDateAssemblee, associationId: userFound.association.id})
+
+            assembleesFound.assemblees.forEach(assemblee => {
+                try {
+                    if(process.env.EMAIL_USER) {
+                        sendEmail({
+                            to: userFound.email,
+                            from: process.env.EMAIL_USER,
+                            subject: "Assemblée générale",
+                            text: bodyMailAssemblee(assemblee, userFound)
+                        })
+                    }
+                }
+                catch(err) {
+                    console.log(err)
+                }
             })
 
             res.status(200).send(createdAdhesion)
@@ -1814,7 +1884,7 @@ export const initRoutes = (app: express.Express) => {
             const adhesionUseCase = new AdhesionUseCase(AppDataSource)
             const adhesionFound = await adhesionUseCase.getAdhesion(adhesionRequest.id,userFound?.association)
             if (adhesionFound === null) {
-                res.status(404).send({"error": `Adhesion ${adhesionRequest.id} not found`})
+                res.status(404).send({error: `Adhesion ${adhesionRequest.id} not found`})
                 return
             }
             res.status(200).send(adhesionFound)
@@ -1869,7 +1939,7 @@ export const initRoutes = (app: express.Express) => {
             const adhesionUseCase = new AdhesionUseCase(AppDataSource)
             const adhesionFound = await adhesionUseCase.updateAdhesion(updateAdhesionRequest.id,{...updateAdhesionRequest},userFound?.association)
             if (adhesionFound === null) {
-                res.status(404).send({"error": `Adhesion ${updateAdhesionRequest.id} not found`})
+                res.status(404).send({error: `Adhesion ${updateAdhesionRequest.id} not found`})
                 return
             }
             res.status(200).send(adhesionFound)
@@ -1896,7 +1966,7 @@ export const initRoutes = (app: express.Express) => {
             const adhesionUseCase = new AdhesionUseCase(AppDataSource)
             const adhesionFound = await adhesionUseCase.deleteAdhesion(deleteAdhesionRequest.id,userFound?.association)
             if (adhesionFound === null) {
-                res.status(404).send({"error": `Adhesion ${deleteAdhesionRequest.id} not found`})
+                res.status(404).send({error: `Adhesion ${deleteAdhesionRequest.id} not found`})
                 return
             }
             res.status(200).send(adhesionFound)
@@ -1908,58 +1978,140 @@ export const initRoutes = (app: express.Express) => {
     })
     //#endregion
 
-    //#region Routes Documents
-    app.post("/association/mine/ged/mine/document", authMiddlewareMember, async (req: Request, res: Response) => {
-        const validation = createDocumentValidation.validate(req.body)
+    //#region Routes Fichier
+    app.post("/association/mine/ged/mine/file", authMiddlewareMember, async (req: Request, res: Response) => {
+        const validation = createFichierValidation.validate(req.body)
 
         if (validation.error) {
             res.status(400).send(generateValidationErrorMessage(validation.error.details))
             return
         }
 
-        const createDocumentRequest = validation.value
+        const createFichierRequest = validation.value
 
         const userFound = await getConnectedUser(req.user.userId, AppDataSource)
-
-        try {
-            const createdDocument = await AppDataSource.getRepository(DocumentGED).save({...createDocumentRequest,ged: userFound?.association.ged})
-
-            res.status(200).send(createdDocument)
-        } catch (error) {
-            console.log(error)
-            res.status(500).send({ error: "Internal error" })
-        }
-    })
-
-    app.get("/association/mine/ged/mine/document/:id", authMiddlewareMember ,async (req: Request, res: Response) => {
-        const validation = getDocumentValidation.validate(req.params)
-
-        if (validation.error) {
-            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+        if(userFound === null) {
+            res.status(404).send({error: "User not found"})
             return
         }
 
-        const documentRequest = validation.value
+        let folderFound: Fichier | null = null
+        let path: string = "/"
 
-        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+        if(createFichierRequest.parentFolderId !== undefined) {
+            folderFound = await AppDataSource.getRepository(Fichier).findOne({where: {id: createFichierRequest.parentFolderId, ged: userFound.association.ged, type: "folder"}})
+            if(!folderFound) {
+                res.status(404).send({error: `Folder ${createFichierRequest.parentFolderId} not found or it's a file`})
+                return
+            } else {
+                path = folderFound.path + folderFound.name + "/"
+            }
+        }
+        
+        const resultNameUnique = await verifNameUnique(userFound.association.ged, path, createFichierRequest.name,createFichierRequest.type)
+        if(resultNameUnique === false) {
+            res.status(403).send({error: "File already exist"})
+            return
+        }
 
         try {
-            const documentUseCase = new DocumentGEDUseCase(AppDataSource)
-            const documentFound = await documentUseCase.getDocumentGED(documentRequest.id,userFound?.association.ged)
-            if (documentFound === null) {
-                res.status(404).send({"error": `Document ${documentRequest.id} not found`})
+            const content = createFichierRequest.content ? createFichierRequest.content : ""
+            const createdFichier = await AppDataSource.getRepository(Fichier).save({...createFichierRequest,ged: userFound.association.ged, path: path})
+
+            if(folderFound !== null) {
+                const createdFichierWithFolder = await AppDataSource.getRepository(Fichier).save({...createdFichier,parentFolder: folderFound})
+                uploadCreationFiles(createdFichierWithFolder,path, userFound.association.id, content)
+                res.status(200).send(createdFichierWithFolder)
                 return
             }
-            res.status(200).send(documentFound)
 
+            uploadCreationFiles(createdFichier,path, userFound.association.id, content)
+
+            res.status(200).send(createdFichier)
         } catch (error) {
             console.log(error)
             res.status(500).send({ error: "Internal error" })
         }
     })
 
-    app.get("/association/mine/ged/mine/document", authMiddlewareMember ,async (req: Request, res: Response) => {
-        const validation = getListDocumentValidation.validate(req.query)
+    app.post("/association/mine/ged/mine/upload/folder/:id", authMiddlewareMember, async (req: Request, res: Response) => {
+        const validation = getFichierValidation.validate(req.params)
+
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+            return
+        }
+
+        const fichierRequest = validation.value
+        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+        if(userFound === null) {
+            res.status(404).send({error: "User not found"})
+            return
+        }
+        let fichierFound: Fichier | null = null
+
+        let upload = undefined
+        let path: string = ""
+
+        if(fichierRequest.id !== 0) {
+            const fichierUseCase = new FichierUseCase(AppDataSource)
+            fichierFound = await fichierUseCase.getFichier(fichierRequest.id,userFound.association.ged)
+            if (fichierFound === null) {
+                res.status(404).send({error: `Fichier ${fichierRequest.id} not found`})
+                return
+            }
+        }
+        
+        if(fichierFound !== null) {
+            path = fichierFound.path + fichierFound.name + "/"
+        } else {
+            path = "/"
+        }
+
+        if(fichierFound !== null) {
+            upload = multer({ storage: storage(userFound.association.id,path) }).single('file');
+        } else {
+            upload = multer({ storage: storage(userFound.association.id,"/") }).single('file');
+        }
+
+        
+
+        upload(req, res, async (err: any) => {
+            try {
+                if (err) {
+                    console.error('Error uploading file:', err);
+                    return res.status(500).json({
+                    message: 'Error uploading file',
+                    error: err.message,
+                    });
+                }
+            
+                if (!req.file) {
+                    return res.status(400).json({ message: 'No file uploaded' });
+                }
+            
+                const fileRepository = AppDataSource.getRepository(Fichier);
+                let uploadedFile: Fichier
+
+                const fileUseCase = new FichierUseCase(AppDataSource)
+                fileUseCase.replaceFile(userFound.association.ged,path,req.file.originalname,"file")
+
+                if(fichierFound) {
+                    uploadedFile = await fileRepository.save({name: req.file.originalname, type: "file", parentFolder: fichierFound,path: path, ged: userFound.association.ged});
+                } else {
+                    uploadedFile = await fileRepository.save({name: req.file.originalname, type: "file", path: path, ged: userFound.association.ged});
+                }
+                
+                res.status(200).send({uploadedFile})
+            } catch (error) {
+                console.error('Error saving file to database:', error);
+                res.status(500).json({error: {error}});
+            }
+          })
+    })
+
+    app.get("/association/mine/ged/mine/file", authMiddlewareMember ,async (req: Request, res: Response) => {
+        const validation = getListFichierValidation.validate(req.query)
 
         if (validation.error) {
             res.status(400).send(generateValidationErrorMessage(validation.error.details))
@@ -1977,8 +2129,8 @@ export const initRoutes = (app: express.Express) => {
         const page = getListDocumentRequest.page ?? 1
 
         try {
-            const documentUseCase = new DocumentGEDUseCase(AppDataSource)
-            const documentFound = await documentUseCase.getListDocumentGED({...getListDocumentRequest, page, limit, gedId: userFound?.association.ged.id})
+            const documentUseCase = new FichierUseCase(AppDataSource)
+            const documentFound = await documentUseCase.getListFichier({...getListDocumentRequest, page, limit, gedId: userFound?.association.ged.id})
             res.status(200).send(documentFound)
 
         } catch (error) {
@@ -1986,26 +2138,67 @@ export const initRoutes = (app: express.Express) => {
         }
     })
 
-    app.patch("/association/mine/ged/mine/document/:id", authMiddlewareMember ,async (req: Request, res: Response) => {
-        const validation = updateDocumentValidation.validate({...req.params,...req.body})
+    app.get("/association/mine/ged/mine/download/:id", authMiddlewareMember, async (req:Request, res: Response) => {
+        const validation = getFichierValidation.validate(req.params)
 
         if (validation.error) {
             res.status(400).send(generateValidationErrorMessage(validation.error.details))
             return
         }
 
-        const updateDocumentRequest = validation.value
+        const fichierRequest = validation.value
+        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+        if(userFound === null) {
+            res.status(404).send({error: "User not found"})
+            return
+        }
+
+        const fichierUseCase = new FichierUseCase(AppDataSource)
+        const fichierFound = await fichierUseCase.getFichier(fichierRequest.id,userFound.association.ged, "file")
+        if (fichierFound === null) {
+            res.status(404).send({error: `Fichier ${fichierRequest.id} not found`})
+            return
+        }
+
+        const pathFile = "upload/" + userFound.association.id + fichierFound.path + fichierFound.name
+
+        if (fs.existsSync(pathFile)) {
+            res.download(pathFile, (err) => {
+              if (err) {
+                console.error('Error downloading file:', err);
+                res.status(500).json({
+                  message: 'Error downloading file',
+                  error: err.message,
+                });
+              } else {
+                console.log('File downloaded successfully:', fichierFound.name);
+              }
+            });
+          } else {
+            res.status(404).json({ message: 'File not found' });
+          }
+    })
+
+    app.get("/association/mine/ged/mine/file/:id", authMiddlewareMember ,async (req: Request, res: Response) => {
+        const validation = getFichierValidation.validate(req.params)
+
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+            return
+        }
+
+        const fichierRequest = validation.value
 
         const userFound = await getConnectedUser(req.user.userId, AppDataSource)
 
         try {
-            const documentUseCase = new DocumentGEDUseCase(AppDataSource)
-            const documentFound = await documentUseCase.updateDocumentGED(updateDocumentRequest.id,{...updateDocumentRequest},userFound?.association.ged)
-            if (documentFound === null) {
-                res.status(404).send({"error": `Document ${updateDocumentRequest.id} not found`})
+            const fichierUseCase = new FichierUseCase(AppDataSource)
+            const fichierFound = await fichierUseCase.getFichier(fichierRequest.id,userFound?.association.ged)
+            if (fichierFound === null) {
+                res.status(404).send({error: `Fichier ${fichierRequest.id} not found`})
                 return
             }
-            res.status(200).send(documentFound)
+            res.status(200).send(fichierFound)
 
         } catch (error) {
             console.log(error)
@@ -2013,218 +2206,60 @@ export const initRoutes = (app: express.Express) => {
         }
     })
 
-    app.delete("/association/mine/ged/mine/document/:id", authMiddlewareMember ,async (req: Request, res: Response) => {
-        const validation = getDocumentValidation.validate(req.params)
+    app.patch("/association/mine/ged/mine/file/:id", authMiddlewareMember ,async (req: Request, res: Response) => {
+        const validation = updateFichierValidation.validate({...req.params,...req.body})
 
         if (validation.error) {
             res.status(400).send(generateValidationErrorMessage(validation.error.details))
             return
         }
 
-        const deleteDocumentRequest = validation.value
+        const updateFichierRequest = validation.value
 
         const userFound = await getConnectedUser(req.user.userId, AppDataSource)
 
         try {
-            const documentUseCase = new DocumentGEDUseCase(AppDataSource)
-            const documentFound = await documentUseCase.deleteDocumentGED(deleteDocumentRequest.id,userFound?.association.ged)
-            if (documentFound === null) {
-                res.status(404).send({"error": `Document ${deleteDocumentRequest.id} not found`})
+            const fichierUseCase = new FichierUseCase(AppDataSource)
+            const fichierFound = await fichierUseCase.updateFichier(updateFichierRequest.id,{...updateFichierRequest},userFound?.association.ged)
+            if (fichierFound === null) {
+                res.status(404).send({error: `Fichier ${updateFichierRequest.id} not found`})
                 return
             }
-            res.status(200).send(documentFound)
+            res.status(200).send(fichierFound)
 
         } catch (error) {
             console.log(error)
             res.status(500).send({ error: "Internal error" })
         }
     })
-    //#endregion
 
-    //#region Routes Dossier
-    app.post("/association/mine/ged/mine/folder", authMiddlewareMember, async (req: Request, res: Response) => {
-        const validation = createDossierValidation.validate(req.body)
+    app.delete("/association/mine/ged/mine/file/:id", authMiddlewareMember ,async (req: Request, res: Response) => {
+        const validation = getFichierValidation.validate(req.params)
 
         if (validation.error) {
             res.status(400).send(generateValidationErrorMessage(validation.error.details))
             return
         }
 
-        const createDossierRequest = validation.value
+        const deleteFichierRequest = validation.value
 
         const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+        
 
         try {
-            const createdDossier = await AppDataSource.getRepository(Dossier).save({...createDossierRequest,ged: userFound?.association.ged})
-
-            res.status(200).send(createdDossier)
-        } catch (error) {
-            console.log(error)
-            res.status(500).send({ error: "Internal error" })
-        }
-    })
-
-    app.post("/association/mine/ged/mine/folder/:id/document", authMiddlewareMember, async (req: Request, res: Response) => {
-        const validation = createDocumentValidation.validate(req.body)
-
-        if (validation.error) {
-            res.status(400).send(generateValidationErrorMessage(validation.error.details))
-            return
-        }
-
-        const createDocumentRequest = validation.value
-
-        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
-
-        const folderId = +req.params.id
-        const folderFound = await AppDataSource.getRepository(Dossier).findOne({where: {id: folderId, ged: userFound?.association.ged}})
-        if(!folderFound) {
-            res.status(404).send({error: `Dossier ${folderId} not found`})
-            return
-        }
-
-        try {
-            const createdDocument = await AppDataSource.getRepository(DocumentGED).save({...createDocumentRequest,ged: userFound?.association.ged,folder: folderFound})
-
-            res.status(200).send(createdDocument)
-        } catch (error) {
-            console.log(error)
-            res.status(500).send({ error: "Internal error" })
-        }
-    })
-
-    app.get("/association/mine/ged/mine/folder/:id/document", authMiddlewareMember ,async (req: Request, res: Response) => {
-        const validation = getListDocumentValidation.validate(req.query)
-
-        if (validation.error) {
-            res.status(400).send(generateValidationErrorMessage(validation.error.details))
-            return
-        }
-
-        const getListDocumentRequest = validation.value
-
-        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
-
-        const folderId = +req.params.id
-
-        let limit = 20
-        if (getListDocumentRequest.limit) {
-            limit = getListDocumentRequest.limit
-        }
-        const page = getListDocumentRequest.page ?? 1
-
-        try {
-            const documentUseCase = new DocumentGEDUseCase(AppDataSource)
-            const documentFound = await documentUseCase.getListDocumentGED({...getListDocumentRequest, page, limit, gedId: userFound?.association.ged.id, folderId: folderId})
-            res.status(200).send(documentFound)
-
-        } catch (error) {
-            res.status(500).send({ error: "Internal error" })
-        }
-    })
-
-    app.get("/association/mine/ged/mine/folder/:id", authMiddlewareMember ,async (req: Request, res: Response) => {
-        const validation = getDossierValidation.validate(req.params)
-
-        if (validation.error) {
-            res.status(400).send(generateValidationErrorMessage(validation.error.details))
-            return
-        }
-
-        const dossierRequest = validation.value
-
-        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
-
-        try {
-            const dossierUseCase = new DossierUseCase(AppDataSource)
-            const dossierFound = await dossierUseCase.getDossier(dossierRequest.id,userFound?.association.ged)
-            if (dossierFound === null) {
-                res.status(404).send({"error": `Dossier ${dossierRequest.id} not found`})
+            const fichierUseCase = new FichierUseCase(AppDataSource)
+            const fichierFound = await fichierUseCase.deleteFichier(deleteFichierRequest.id,userFound?.association.ged)
+            if (fichierFound === null) {
+                res.status(404).send({error: `Fichier ${deleteFichierRequest.id} not found`})
                 return
             }
-            res.status(200).send(dossierFound)
 
-        } catch (error) {
-            console.log(error)
-            res.status(500).send({ error: "Internal error" })
-        }
-    })
+            fs.remove("upload/" + userFound?.association.id + fichierFound.path + fichierFound.name)
+            .catch((err) => {
+                res.status(500).send({ error: {err} })
+            })
 
-    app.get("/association/mine/ged/mine/folder", authMiddlewareMember ,async (req: Request, res: Response) => {
-        const validation = getListDossierValidation.validate(req.query)
-
-        if (validation.error) {
-            res.status(400).send(generateValidationErrorMessage(validation.error.details))
-            return
-        }
-
-        const getListDossierRequest = validation.value
-
-        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
-
-        let limit = 20
-        if (getListDossierRequest.limit) {
-            limit = getListDossierRequest.limit
-        }
-        const page = getListDossierRequest.page ?? 1
-
-        try {
-            const dossierUseCase = new DossierUseCase(AppDataSource)
-            const dossierFound = await dossierUseCase.getListDossier({...getListDossierRequest, page, limit, gedId: userFound?.association.ged.id})
-            res.status(200).send(dossierFound)
-
-        } catch (error) {
-            res.status(500).send({ error: "Internal error" })
-        }
-    })
-
-    app.patch("/association/mine/ged/mine/folder/:id", authMiddlewareMember ,async (req: Request, res: Response) => {
-        const validation = updateDossierValidation.validate({...req.params,...req.body})
-
-        if (validation.error) {
-            res.status(400).send(generateValidationErrorMessage(validation.error.details))
-            return
-        }
-
-        const updateDossierRequest = validation.value
-
-        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
-
-        try {
-            const dossierUseCase = new DossierUseCase(AppDataSource)
-            const dossierFound = await dossierUseCase.updateDossier(updateDossierRequest.id,{...updateDossierRequest},userFound?.association.ged)
-            if (dossierFound === null) {
-                res.status(404).send({"error": `Dossier ${updateDossierRequest.id} not found`})
-                return
-            }
-            res.status(200).send(dossierFound)
-
-        } catch (error) {
-            console.log(error)
-            res.status(500).send({ error: "Internal error" })
-        }
-    })
-
-    app.delete("/association/mine/ged/mine/folder/:id", authMiddlewareMember ,async (req: Request, res: Response) => {
-        const validation = getDossierValidation.validate(req.params)
-
-        if (validation.error) {
-            res.status(400).send(generateValidationErrorMessage(validation.error.details))
-            return
-        }
-
-        const deleteDossierRequest = validation.value
-
-        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
-
-        try {
-            const dossierUseCase = new DossierUseCase(AppDataSource)
-            const dossierFound = await dossierUseCase.deleteDossier(deleteDossierRequest.id,userFound?.association.ged)
-            if (dossierFound === null) {
-                res.status(404).send({"error": `Dossier ${deleteDossierRequest.id} not found`})
-                return
-            }
-            res.status(200).send(dossierFound)
+            res.status(200).send(fichierFound)
 
         } catch (error) {
             console.log(error)
@@ -2276,7 +2311,7 @@ export const initRoutes = (app: express.Express) => {
  *       '500':
  *         description: Erreur interne du serveur.
  */
-    app.get("/transaction", authMiddleware, async (req: Request, res: Response) => {
+    app.get("/mine/transaction", authMiddleware, async (req: Request, res: Response) => {
         const validation = getTransactionsValidation.validate(req.query)
 
         if(validation.error) {
@@ -2284,19 +2319,11 @@ export const initRoutes = (app: express.Express) => {
             return
         }
 
-        const authHeader = req.headers['authorization'];
-        if (!authHeader) return res.status(401).json({"error": "Unauthorized"});
-
-        const token = authHeader.split(' ')[1];
-        if (token === null) return res.status(401).json({"error": "Unauthorized"});
-
         const getTransactionRequest = validation.value
 
-        const userUseCase = new UserUseCase(AppDataSource)
-        const userFound = await userUseCase.getUserByToken(token)
-
+        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
         if(!userFound) {
-            res.status(404).send({"error": `User not found`})
+            res.status(404).send({error: `User ${req.user.userId} not found`})
             return
         }
 
@@ -2333,14 +2360,14 @@ export const initRoutes = (app: express.Express) => {
         }
 
         try {
-            const createdDocument = await AppDataSource.getRepository(CompteTransaction).save({
+            const createdDon = await AppDataSource.getRepository(CompteTransaction).save({
                 ...createDonRequest,
                 type: "don",
                 association: userFound?.association,
                 user: userFound
             })
 
-            res.status(200).send(createdDocument)
+            res.status(200).send(createdDon)
         } catch (error) {
             console.log(error)
             res.status(500).send({ error: "Internal error" })
@@ -2397,7 +2424,7 @@ export const initRoutes = (app: express.Express) => {
             const planningUseCase = new PlanningUseCase(AppDataSource)
             const planningFound = await planningUseCase.getPlanning(getPlanningRequest.id)
             if (planningFound === null) {
-                res.status(404).send({"error": `Planning ${getPlanningRequest.id} not found`})
+                res.status(404).send({error: `Planning ${getPlanningRequest.id} not found`})
                 return
             }
             res.status(200).send(planningFound)
@@ -2453,7 +2480,7 @@ export const initRoutes = (app: express.Express) => {
             const planningUseCase = new PlanningUseCase(AppDataSource)
             const planningFound = await planningUseCase.updatePlanning(updatePlanningRequest.id,{...updatePlanningRequest})
             if (planningFound === null) {
-                res.status(404).send({"error": `Planning ${updatePlanningRequest.id} not found`})
+                res.status(404).send({error: `Planning ${updatePlanningRequest.id} not found`})
                 return
             }
             res.status(200).send(planningFound)
@@ -2480,7 +2507,7 @@ export const initRoutes = (app: express.Express) => {
             const planningUseCase = new PlanningUseCase(AppDataSource)
             const planningFound = await planningUseCase.deletePlanning(deletePlanningRequest.id)
             if (planningFound === null) {
-                res.status(404).send({"error": `Planning ${deletePlanningRequest.id} not found`})
+                res.status(404).send({error: `Planning ${deletePlanningRequest.id} not found`})
                 return
             }
             res.status(200).send(planningFound)
@@ -2505,8 +2532,22 @@ export const initRoutes = (app: express.Express) => {
 
         const userFound = await getConnectedUser(req.user.userId, AppDataSource)
 
+        const userUseCase = new UserUseCase(AppDataSource)
+        const listAdherant = await userUseCase.getListAdherant(userFound?.association, false)
+
         try {
             const createdAssemblee = await AppDataSource.getRepository(Assemblee).save({...createAssembleeRequest,association: userFound?.association})
+
+            listAdherant.users.forEach((user) => {
+                if(process.env.EMAIL_USER) {
+                    sendEmail({
+                        to: user.email,
+                        from: process.env.EMAIL_USER,
+                        subject: "Assemblée générale",
+                        text: bodyMailAssemblee(createdAssemblee, user)
+                    })
+                }
+            })
 
             res.status(200).send(createdAssemblee)
         } catch (error) {
@@ -2531,7 +2572,7 @@ export const initRoutes = (app: express.Express) => {
             const assembleeUseCase = new AssembleeUseCase(AppDataSource)
             const assembleeFound = await assembleeUseCase.getAssemblee(assembleeRequest.id,userFound?.association)
             if (assembleeFound === null) {
-                res.status(404).send({"error": `Assemblee ${assembleeRequest.id} not found`})
+                res.status(404).send({error: `Assemblee ${assembleeRequest.id} not found`})
                 return
             }
             res.status(200).send(assembleeFound)
@@ -2587,7 +2628,7 @@ export const initRoutes = (app: express.Express) => {
             const assembleeUseCase = new AssembleeUseCase(AppDataSource)
             const assembleeFound = await assembleeUseCase.updateAssemblee(updateAssembleeRequest.id,{...updateAssembleeRequest},userFound?.association)
             if (assembleeFound === null) {
-                res.status(404).send({"error": `Assemblee ${updateAssembleeRequest.id} not found`})
+                res.status(404).send({error: `Assemblee ${updateAssembleeRequest.id} not found`})
                 return
             }
             res.status(200).send(assembleeFound)
@@ -2614,7 +2655,7 @@ export const initRoutes = (app: express.Express) => {
             const assembleeUseCase = new AssembleeUseCase(AppDataSource)
             const assembleeFound = await assembleeUseCase.deleteAssemblee(deleteAssembleeRequest.id,userFound?.association)
             if (assembleeFound === null) {
-                res.status(404).send({"error": `Assemblee ${deleteAssembleeRequest.id} not found`})
+                res.status(404).send({error: `Assemblee ${deleteAssembleeRequest.id} not found`})
                 return
             }
             res.status(200).send(assembleeFound)
@@ -2625,6 +2666,7 @@ export const initRoutes = (app: express.Express) => {
         }
     })
     //#endregion
+
     initRoutesSA(app)
     UserHandler(app)
 }

@@ -59,3 +59,21 @@ export const getEvenementsValidation = Joi.object<GetEvenementsRequest>({
     beginDate: Joi.date().iso().optional(),
     endDate: Joi.date().iso().optional()
 })
+
+export interface GetEvenementsPublicRequest {
+    page?: number,
+    limit?: number,
+    type?: string,
+    beginDate?: Date,
+    endDate?: Date,
+    domainName: string
+}
+
+export const getEvenementsPublicValidation = Joi.object<GetEvenementsPublicRequest>({
+    page: Joi.number().min(1).optional(),
+    limit: Joi.number().min(1).optional(),
+    type: Joi.string().optional(),
+    beginDate: Joi.date().iso().optional(),
+    endDate: Joi.date().iso().optional(),
+    domainName: Joi.string().required()
+})

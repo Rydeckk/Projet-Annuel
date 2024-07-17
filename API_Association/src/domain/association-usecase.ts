@@ -71,6 +71,8 @@ export class AssociationUseCase {
         const query = this.db.createQueryBuilder(Association, 'asso')
         query.skip((assoFilter.page - 1) * assoFilter.limit)
         query.take(assoFilter.limit)
+        query.innerJoinAndSelect("asso.theme","theme")
+        query.innerJoinAndSelect("asso.ged","ged")
 
         if(assoFilter.domainName !== undefined) {
             query.andWhere("asso.domainName = :domainName", {domainName: assoFilter.domainName})

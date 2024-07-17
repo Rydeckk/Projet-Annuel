@@ -5,7 +5,9 @@ export interface CreateLocalRequest {
     country: string,
     city: string,
     zip: string,
-    address: string
+    address: string,
+    phone: string,
+    email: string
 }
 
 export const createLocalValidation = Joi.object<CreateLocalRequest>({
@@ -13,7 +15,9 @@ export const createLocalValidation = Joi.object<CreateLocalRequest>({
     country: Joi.string().required(),
     city: Joi.string().required(),
     zip: Joi.string().required().min(5).max(5),
-    address: Joi.string().required()
+    address: Joi.string().required(),
+    phone: Joi.string().min(10).max(10).required(),
+    email: Joi.string().required()
 })
 
 export interface GetLocalRequest {
@@ -61,7 +65,9 @@ export interface UpdateLocalRequest {
     country?: string,
     city?: string,
     zip?: string
-    address?: string
+    address?: string,
+    phone?: string,
+    email?: string
 }
 
 export const updateLocalValidation = Joi.object<UpdateLocalRequest>({
@@ -78,7 +84,9 @@ export const updateLocalValidation = Joi.object<UpdateLocalRequest>({
         .min(5)
         .max(5),
     address: Joi.string()
-        .optional()
+        .optional(),
+    phone: Joi.string().min(10).max(10).optional(),
+    email: Joi.string().optional()
 })
 
 export interface GetListLocalRequest {
