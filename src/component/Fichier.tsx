@@ -20,7 +20,7 @@ export function FichierElement({file, handleClickFolder, handleClickFile}: Fichi
 
     return (
         <div className="div_file_ged clickable-image" onClick={file.type === "folder" ? handleChangeFolder : handleDownload}>
-            <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0px"}}>
+            <div className="div_row_content">
                 {file.type === "folder" ? (
                     <div className="width_column">
                         <img src="/icone/folder.png" className="taille_icone50"></img>

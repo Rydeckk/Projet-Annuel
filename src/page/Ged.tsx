@@ -19,7 +19,7 @@ const sortFiles = (files: Array<Fichier>): Array<Fichier> => {
 export function Ged() {
     const asso = useAssoContext()
     const [fileList, setFileList] = useState<Array<Fichier>>([])
-    const [parentFolderId, setParentFolderId] = useState<number | undefined>()
+    const [parentFolder, setParentFolder] = useState<Fichier | undefined>()
 
     useEffect(() => {
         const getFiles = async (parentFolderId?: number) => {
@@ -32,8 +32,8 @@ export function Ged() {
 
             }
         }
-        getFiles(parentFolderId)
-    }, [parentFolderId, asso.asso])
+        getFiles(parentFolder?.id)
+    }, [parentFolder, asso.asso])
 
     const handleClickFile = async (file: Fichier) => {
         if(asso.asso !== null) {
@@ -42,7 +42,11 @@ export function Ged() {
     }
 
     const handleClickFolder = async (folder: Fichier) => {
-        setParentFolderId(folder.id)
+        setParentFolder(folder)
+    }
+
+    const handleClickPrevFolder = () => {
+        setParentFolder(parentFolder.parentFolder)
     }
 
     return (
@@ -64,6 +68,16 @@ export function Ged() {
                 <label className="width_column">{traduction.download}</label>
             </div>
             <div className="div_ged_content">
+                <div className="div_file_ged clickable-image" onClick={handleClickPrevFolder}>
+                    <div className="div_row_content">
+                        <div className="width_column">
+                            <img src="/icone/folder.png" className="taille_icone50"></img>
+                        </div>
+                        <label className="width_column">..</label>
+                        <label className="width_column"></label>
+                        <span className="width_column"></span>
+                    </div>
+                </div>
                 {fileList.map((file) => (
                         <FichierElement 
                         key={file.id} 

@@ -331,7 +331,14 @@ color: #333;
 }
 
 .div_file_ged:hover {
-    background-color: rgba(6, 61, 105, 0.39);
+    background-color: rgba(0, 140, 255, 0.05);
+}
+
+.div_row_content {
+    display: flex; 
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0px
 }
 
 .width_column {
