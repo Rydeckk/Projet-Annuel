@@ -107,23 +107,27 @@ export class FichierUseCase {
     }
 }
 
-export function uploadCreationFiles(file: Fichier, path: string, assoId: number, content: string) {
+export function uploadCreationFiles(file: Fichier, assoId: number, content: string) {
     if(file.type === "folder") {
-        fs.mkdir("upload/" + assoId + path + file.name,{recursive: true},(err) => {
+        fs.mkdir("upload/" + assoId + file.path + file.name,{recursive: true},(err) => {
             if (err) {
                 return err
               }
         })
     } else {
         if(!fs.existsSync("upload/" + assoId)) {
-            fs.mkdir("upload/" + assoId,{recursive: true},(err) => {
-                if (err) {
-                    return err
-                  }
-            })
+            try {
+                fs.mkdirSync("upload/" + assoId,{recursive: true})
+            } catch (err) {
+                console.log(err)
+                return err
+            }
+            
         }
-        fs.writeFile("upload/" + assoId + path + file.name, content, (err) => {
+
+        fs.writeFile("upload/" + assoId + file.path + file.name, content, (err) => {
             if (err) {
+                console.log(err)
                 return err
               }
         })

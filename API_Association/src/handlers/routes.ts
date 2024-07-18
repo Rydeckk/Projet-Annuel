@@ -2020,12 +2020,12 @@ export const initRoutes = (app: express.Express) => {
 
             if(folderFound !== null) {
                 const createdFichierWithFolder = await AppDataSource.getRepository(Fichier).save({...createdFichier,parentFolder: folderFound})
-                uploadCreationFiles(createdFichierWithFolder,path, userFound.association.id, content)
+                uploadCreationFiles(createdFichierWithFolder, userFound.association.id, content)
                 res.status(200).send(createdFichierWithFolder)
                 return
             }
 
-            uploadCreationFiles(createdFichier,path, userFound.association.id, content)
+            uploadCreationFiles(createdFichier, userFound.association.id, content)
 
             res.status(200).send(createdFichier)
         } catch (error) {
