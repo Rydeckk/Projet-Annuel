@@ -48,7 +48,7 @@ export class FichierUseCase {
             query.andWhere("folder.id = :folderId", {folderId: fichiersFilter.parentFolderId})
         } else {
             
-            query.leftJoin("fichier.parentFolder","folder")
+            query.leftJoinAndSelect("fichier.parentFolder","folder")
             query.andWhere("fichier.parentFolder IS NULL")
         }
 
