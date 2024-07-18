@@ -23,7 +23,7 @@ export class FichierUseCase {
 
     async getFichier(id: number, ged?: GED, type?: string): Promise <Fichier | null> {
         const repoFichier = this.db.getRepository(Fichier)
-        const fichierFound = await repoFichier.findOne({where: {id: id,ged: ged, type: type}, relations: ["ged"]})
+        const fichierFound = await repoFichier.findOne({where: {id: id,ged: ged, type: type}, relations: ["ged","parentFolder"]})
         if(fichierFound === null) return null
 
         return fichierFound
@@ -44,7 +44,7 @@ export class FichierUseCase {
         }
 
         if(fichiersFilter.parentFolderId !== undefined) {
-            query.innerJoin("fichier.parentFolder","folder")
+            query.innerJoinAndSelect("fichier.parentFolder","folder")
             query.andWhere("folder.id = :folderId", {folderId: fichiersFilter.parentFolderId})
         } else {
             
