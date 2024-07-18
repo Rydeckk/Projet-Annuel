@@ -1,4 +1,3 @@
-import { useAssoContext } from "../main"
 
 export type Association = {
     id: number,

@@ -25,7 +25,11 @@
     "mytransactions": "Mes transactions",
     "myevent": "Mes événements",
     "master": "Modification association",
-    "myMemberShip": "Mon adhésion"
-
-
+    "myMemberShip": "Mon adhésion",
+    "file_folder": "Fichier/Dossier",
+    "file_name": "Nom",
+    "added_date": "Ajouter le",
+    "download": "Télécharger",
+    "add": "Ajouter",
+    "upload": "Importer"
 }
