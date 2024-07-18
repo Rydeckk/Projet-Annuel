@@ -25,7 +25,7 @@ export function Ged() {
         const getFiles = async (parentFolderId?: number) => {
             try {
                 if(asso.asso !== null) {
-                    const response = await getListFile(asso.asso.domainName)
+                    const response = await getListFile(asso.asso.domainName, parentFolderId)
                     setFileList(sortFiles(response.file))
                 }
             } catch (error) {
@@ -33,7 +33,7 @@ export function Ged() {
             }
         }
         getFiles(parentFolderId)
-    }, [parentFolderId])
+    }, [parentFolderId, asso.asso])
 
     const handleClickFile = async (file: Fichier) => {
         if(asso.asso !== null) {
@@ -41,8 +41,8 @@ export function Ged() {
         }
     }
 
-    const handleClickFolder = () => {
-
+    const handleClickFolder = async (folder: Fichier) => {
+        setParentFolderId(folder.id)
     }
 
     return (

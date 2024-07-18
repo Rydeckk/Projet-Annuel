@@ -3,7 +3,7 @@ import { Fichier } from "../request/requestFile";
 import { formatDateToLocalString } from "../utils/utils-function";
 
 export type FichierProps = {
-    handleClickFolder: () => void,
+    handleClickFolder: (folder: Fichier) => void,
     handleClickFile: (f: Fichier) => void,
     file: Fichier
 }
@@ -14,8 +14,12 @@ export function FichierElement({file, handleClickFolder, handleClickFile}: Fichi
         handleClickFile(file)
     }
 
+    const handleChangeFolder = () => {
+        handleClickFolder(file)
+    }
+
     return (
-        <div className="div_file_ged clickable-image" onClick={file.type === "folder" ? handleClickFolder : handleDownload}>
+        <div className="div_file_ged clickable-image" onClick={file.type === "folder" ? handleChangeFolder : handleDownload}>
             <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0px"}}>
                 {file.type === "folder" ? (
                     <div className="width_column">
