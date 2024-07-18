@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import traduction from "../../traductions/traduction.json"
 import { Event } from "../component/Event";
 import { useAssoContext } from "../main";
-import { createEvent, deleteEvent, Evenement, getListEvent, updateEvent } from "../request/requestEvent";
+import { createEvent, deleteEvent, Evenement, getListEvent, getListEventPublic, updateEvent } from "../request/requestEvent";
 import { PopupEvent } from "../component/popupEvent";
 
 
@@ -55,7 +55,10 @@ export function Events() {
                     setEventList(response.event)
                 }
             } catch (error) {
-                setEventList([])
+                if(asso.asso !== null) {
+                    const response = await getListEventPublic(asso.asso.domainName)
+                    setEventList(response.event)
+                }
             }
         }
         getEvents()

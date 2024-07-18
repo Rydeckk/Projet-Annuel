@@ -25,6 +25,28 @@ export async function getListEvent(domainName: string): Promise<{event: Array<Ev
 
       const data = await response.json()
       const events = data.events
+
+      if(response.status === 403) {
+        return getListEventPublic(domainName)
+      }
+      return {
+        event: events || []
+      }
+  }
+
+  export async function getListEventPublic(domainName: string): Promise<{event: Array<Evenement>}> {
+    const headers = new Headers({'Content-Type': 'application/json'})
+    const response = await fetch("http://vps-1d054ff8.vps.ovh.net:3000/association/mine/eventpublic?" + new URLSearchParams({
+        domainName: domainName
+      }).toString(), {
+        
+        method: 'GET',
+        headers: headers
+      })
+
+      const data = await response.json()
+      const events = data.events
+
       return {
         event: events || []
       }
