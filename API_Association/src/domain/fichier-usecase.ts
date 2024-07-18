@@ -45,8 +45,9 @@ export class FichierUseCase {
 
         if(fichiersFilter.parentFolderId !== undefined) {
             query.innerJoin("fichier.parentFolder","folder")
-            query.andWhere("folder.id :folderId", {folderId: fichiersFilter.parentFolderId})
+            query.andWhere("folder.id = :folderId", {folderId: fichiersFilter.parentFolderId})
         } else {
+            
             query.leftJoin("fichier.parentFolder","folder")
             query.andWhere("fichier.parentFolder IS NULL")
         }
