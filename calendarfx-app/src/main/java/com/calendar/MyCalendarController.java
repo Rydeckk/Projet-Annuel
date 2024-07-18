@@ -37,7 +37,7 @@ public class MyCalendarController {
         ContextMenu contextMenu = new ContextMenu();
         MenuItem newEntryItem = new MenuItem("New Entry");
         newEntryItem.setOnAction(event -> {
-            //Création d'une nouvelle entrée
+            // Logique pour créer une nouvelle entrée
             Entry<?> newEntry = new MyEntryFactory().createEntry(ZonedDateTime.of(date, LocalTime.now(), calendarView.getZoneId()), tasksCalendar);
             new MyEntryDialog(newEntry).showAndWait();
         });
