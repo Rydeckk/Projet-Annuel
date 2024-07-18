@@ -5,14 +5,13 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
 
-import java.io.IOException;
 import java.time.LocalTime;
 
 public class MyEntryDialog extends Dialog<Void> {
 
     public MyEntryDialog(Entry<?> entry) {
         setTitle("Edit Entry");
-        ApiService apiService = new ApiService();
+
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
@@ -41,6 +40,7 @@ public class MyEntryDialog extends Dialog<Void> {
 
         ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
         getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
         setResultConverter(new Callback<ButtonType, Void>() {
             @Override
             public Void call(ButtonType buttonType) {
@@ -51,23 +51,9 @@ public class MyEntryDialog extends Dialog<Void> {
                     entry.changeEndDate(endDatePicker.getValue());
                     entry.changeStartTime(LocalTime.parse(startTimeField.getText()));
                     entry.changeEndTime(LocalTime.parse(endTimeField.getText()));
-
-                    try {
-                        apiService.updateEntryInApi(entry);
-                    } catch (IOException | InterruptedException e) {
-                        e.printStackTrace();
-                        showAlert("Erreur", "Une erreur est survenue lors de la mise à jour de l'entrée.", Alert.AlertType.ERROR);
-                    }
                 }
                 return null;
             }
         });
-    }
-    private void showAlert(String title, String message, Alert.AlertType alertType) {
-        Alert alert = new Alert(alertType);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 }
