@@ -1,0 +1,4 @@
+{
+    "java.compile.nullAnalysis.mode": "automatic",
+    "javafx.libPath": "/home/soums/openjfx-22.0.1_linux-x64_bin-sdk/javafx-sdk-22.0.1/lib"
+}
