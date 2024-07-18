@@ -3,7 +3,8 @@ export type Fichier = {
     name: string,
     type: string,
     path: string,
-    addedDate: Date
+    addedDate: Date,
+    parentFolder: Fichier
 }
 
 function buildUrlFile(baseUrl: string, parentFolderId?: number): string {
@@ -71,4 +72,19 @@ export async function upload(domainName: string, parentFolderId: number = 0): Pr
     const data = await response.json()
     const files = data.fichiers
 
+}
+
+export async function getFile(domainName: string, file: Fichier): Promise<Fichier | null> {
+    const url = new URL("http://vps-1d054ff8.vps.ovh.net:3000/association/mine/ged/mine/file/" + String(file.id))
+    const headers = new Headers({'Content-Type': 'application/json', 'Authorization': 'Bearer '+ localStorage.getItem(domainName+"-token")})
+    
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: headers
+    })
+
+    const data = await response.json()
+    const fileFound = data
+
+    return fileFound
 }

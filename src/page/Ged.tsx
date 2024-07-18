@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useAssoContext } from "../main";
-import { downloadFile, Fichier, getListFile } from "../request/requestFile";
+import { downloadFile, Fichier, getFile, getListFile } from "../request/requestFile";
 import { FichierElement } from "../component/Fichier";
 import traduction from "../../traductions/traduction.json"
 
 const sortFiles = (files: Array<Fichier>): Array<Fichier> => {
     return files.sort((a, b) => {
-      if (a.type === 'folder' && b.type === 'file') {
-        return -1;
-      }
-      if (a.type === 'file' && b.type === 'folder') {
-        return 1;
-      }
-      return 0;
+        if (a.type === 'folder' && b.type === 'file') {
+            return -1;
+        }
+        if (a.type === 'file' && b.type === 'folder') {
+            return 1;
+        }
+        return 0;
     })
-  }
+}
 
 export function Ged() {
     const asso = useAssoContext()
@@ -42,11 +42,21 @@ export function Ged() {
     }
 
     const handleClickFolder = async (folder: Fichier) => {
+        console.log(folder)
         setParentFolder(folder)
     }
 
-    const handleClickPrevFolder = () => {
-        setParentFolder(parentFolder.parentFolder)
+    const handleClickPrevFolder = async () => {
+        if(asso.asso !== null && parentFolder !== undefined) {
+            if(parentFolder.parentFolder !== null) {
+                const parentFolderFound = await getFile(asso.asso.domainName, parentFolder.parentFolder)
+                if(parentFolderFound !== null) {
+                    setParentFolder(parentFolderFound)
+                }
+            } else {
+                setParentFolder(undefined)
+            }
+        }
     }
 
     return (
@@ -68,7 +78,7 @@ export function Ged() {
                 <label className="width_column">{traduction.download}</label>
             </div>
             <div className="div_ged_content">
-                <div className="div_file_ged clickable-image" onClick={handleClickPrevFolder}>
+                { parentFolder && (<div className="div_file_ged clickable-image" onClick={handleClickPrevFolder}>
                     <div className="div_row_content">
                         <div className="width_column">
                             <img src="/icone/folder.png" className="taille_icone50"></img>
@@ -77,7 +87,7 @@ export function Ged() {
                         <label className="width_column"></label>
                         <span className="width_column"></span>
                     </div>
-                </div>
+                </div>)}
                 {fileList.map((file) => (
                         <FichierElement 
                         key={file.id} 
