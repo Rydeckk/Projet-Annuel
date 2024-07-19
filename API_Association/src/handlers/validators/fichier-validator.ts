@@ -14,7 +14,7 @@ export const createFichierValidation = Joi.object<CreateFichierRequest>({
     name: Joi.string().required(),
     type: Joi.string().valid('file', "folder").required(),
     parentFolderId: Joi.number().optional(),
-    content: Joi.string().optional()
+    content: Joi.string().allow("").optional()
 })
 
 export interface GetFichierRequest {
