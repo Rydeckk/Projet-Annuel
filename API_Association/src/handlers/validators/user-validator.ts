@@ -178,3 +178,17 @@ export const updateMyUserValidation = Joi.object<UpdateMyUserRequest>({
     id: Joi.number().required(),
     roleId: Joi.number().optional()
 })
+
+export interface UpdateMyInfoUserRequest {
+    email?: string,
+    firstName?: string,
+    lastName?: string,
+    address?: string
+}
+
+export const updateMyInfoUserValidation = Joi.object<UpdateMyInfoUserRequest>({
+    email: Joi.string().optional(),
+    firstName: Joi.string().optional(),
+    lastName: Joi.string().optional(),
+    address: Joi.string().optional(),
+})

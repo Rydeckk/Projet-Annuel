@@ -5,7 +5,7 @@ import { authMiddleware, authMiddlewareAdmin, authMiddlewareMember, authMiddlewa
 import { createMyRoleValidation, createRoleValidation, getMyRoleByIdValidation, getMyRolesValidation, getRoleByIdValidation, getRolesValidation, updateMyRoleValidation, updateRoleValidation } from "./validators/role-validator";
 import { Role } from "../database/entities/role";
 import { RoleUseCase } from "../domain/role-usecase";
-import { getUserByIdValidation, getUsersValidation, updateUserValidation } from "./validators/user-validator";
+import { getUserByIdValidation, getUsersValidation, updateMyInfoUserValidation, updateMyUserValidation, updateUserValidation } from "./validators/user-validator";
 import { getConnectedUser, UserUseCase } from "../domain/user-usecase";
 import { getTransactionsValidation } from "./validators/transactions-validator";
 import { TransactionUseCase } from "../domain/transaction-usecase";
@@ -53,6 +53,9 @@ import fs from "fs-extra"
 import multer from "multer";
 import { User } from "../database/entities/user";
 import { bodyMailAdhesion, bodyMailAssemblee, sendEmail } from "../service/mail";
+import { updateThemeValidation } from "./validators/theme-validator";
+import { ThemeUseCase } from "../domain/theme-usecase";
+import { Association } from "../database/entities/association";
 
 export const initRoutes = (app: express.Express) => {
 
@@ -608,7 +611,7 @@ export const initRoutes = (app: express.Express) => {
  */
 
     app.patch("/association/mine/user/:id", authMiddlewareAdmin, async (req: Request, res: Response) => {
-        const validation = updateUserValidation.validate({...req.params, ...req.body})
+        const validation = updateMyUserValidation.validate({...req.params, ...req.body})
 
         if(validation.error) {
             res.status(400).send(generateValidationErrorMessage(validation.error.details))
@@ -624,6 +627,36 @@ export const initRoutes = (app: express.Express) => {
             const selectedUser = await userUseCase.updateUser(updateUserRequest.id,{...updateUserRequest},userFound?.association,false)
             if (selectedUser === null) {
                 res.status(404).send({error: `User ${updateUserRequest.id} not found`})
+                return
+            }
+            res.status(200).send(selectedUser)
+        }catch(error) {
+            console.log(error)
+            res.status(500).send({error: "Internal error"})
+        }
+    })
+
+    app.patch("/association/mine/myinfo/user", authMiddleware, async (req: Request, res: Response) => {
+        const validation = updateMyInfoUserValidation.validate(req.body)
+
+        if(validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+            return
+        }
+
+        const updateUserRequest = validation.value
+
+        const userFound = await getConnectedUser(req.user.userId,AppDataSource)
+        if(!userFound) {
+            res.status(404).send({error: `User ${req.user.userId} not found`})
+            return
+        }
+
+        try {
+            const userUseCase = new UserUseCase(AppDataSource)
+            const selectedUser = await userUseCase.updateMyInfoUser(userFound.id,{...updateUserRequest},userFound?.association)
+            if (selectedUser === null) {
+                res.status(404).send({error: `User ${userFound.id} not found`})
                 return
             }
             res.status(200).send(selectedUser)
@@ -2016,14 +2049,7 @@ export const initRoutes = (app: express.Express) => {
 
         try {
             const content = createFichierRequest.content ? createFichierRequest.content : ""
-            const createdFichier = await AppDataSource.getRepository(Fichier).save({...createFichierRequest,ged: userFound.association.ged, path: path})
-
-            if(folderFound !== null) {
-                const createdFichierWithFolder = await AppDataSource.getRepository(Fichier).save({...createdFichier,parentFolder: folderFound})
-                uploadCreationFiles(createdFichierWithFolder, userFound.association.id, content)
-                res.status(200).send(createdFichierWithFolder)
-                return
-            }
+            const createdFichier = await AppDataSource.getRepository(Fichier).save({...createFichierRequest,ged: userFound.association.ged, path: path, parentFolder: folderFound})
 
             uploadCreationFiles(createdFichier, userFound.association.id, content)
 
@@ -2659,6 +2685,45 @@ export const initRoutes = (app: express.Express) => {
                 return
             }
             res.status(200).send(assembleeFound)
+
+        } catch (error) {
+            console.log(error)
+            res.status(500).send({ error: "Internal error" })
+        }
+    })
+    //#endregion
+
+    //#region Routes Theme
+    app.patch("/association/mine/theme/mine", authMiddlewareAdmin, async (req: Request, res: Response) => {
+        const validation = updateThemeValidation.validate(req.body)
+
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+            return
+        }
+
+        const updateThemeRequest = validation.value
+
+        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+        if(!userFound) {
+            res.status(404).send({error: `User ${req.user.userId} not found`})
+            return
+        }
+
+        const assoFound = await AppDataSource.getRepository(Association).findOne({where:{id: userFound.association.id}, relations: ["theme","ged"]})
+        if(!assoFound) {
+            res.status(404).send({error: `Asso ${userFound.association.id} not found`})
+            return
+        }
+
+        try {
+            const themeUseCase = new ThemeUseCase(AppDataSource)
+            const themeUpdated = await themeUseCase.updateTheme(assoFound.theme.id, updateThemeRequest)
+            if (themeUpdated === null) {
+                res.status(404).send({error: `Theme ${assoFound.theme.id} not found`})
+                return
+            }
+            res.status(200).send(themeUpdated)
 
         } catch (error) {
             console.log(error)

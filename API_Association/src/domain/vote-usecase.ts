@@ -36,8 +36,8 @@ export class VoteUseCase {
     async getListVote(voteFilter: ListVoteFilter): Promise <{ Votes: Vote[]}> {
         const query = this.db.createQueryBuilder(Vote, 'vote')
         query.innerJoin("vote.association","asso")
-        query.leftJoin("vote.parentVote","pVote")
-        query.leftJoin("vote.assemblee","assemblee")
+        query.leftJoinAndSelect("vote.parentVote","pVote")
+        query.leftJoinAndSelect("vote.assemblee","assemblee")
         query.skip((voteFilter.page - 1) * voteFilter.limit)
         query.take(voteFilter.limit)
 
@@ -69,7 +69,7 @@ export class VoteUseCase {
 
     async updateVote(id: number, updateVote: UpdateVoteParams, asso?: Association): Promise <Vote | null> {
         const repoVote = this.db.getRepository(Vote)
-        const voteFound = await repoVote.findOne({where: {id: id, association: asso}})
+        const voteFound = await repoVote.findOne({where: {id: id, association: asso}, relations: ["parentVote","assemblee"]})
         if(voteFound === null) return null
 
         if(updateVote.name!== undefined) {

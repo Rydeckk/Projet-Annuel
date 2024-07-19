@@ -20,6 +20,13 @@ export interface UpdateUserParams {
     associationId?: number
 }
 
+export interface UpdateMyInfoUserParams {
+    email?: string,
+    firstName?: string,
+    lastName?: string,
+    address?: string
+}
+
 export class UserUseCase {
     constructor(private readonly db: DataSource) { }
 
@@ -28,6 +35,7 @@ export class UserUseCase {
         query.skip((listUserFilter.page - 1) * listUserFilter.limit)
         query.take(listUserFilter.limit)
         query.innerJoinAndSelect('user.role','role')
+        query.leftJoinAndSelect("user.adhesion","adhesion")
 
         if(listUserFilter.isAdmin !== undefined) {
             query.andWhere('role.isAdmin= :isAdmin', {isAdmin: listUserFilter.isAdmin})
@@ -59,6 +67,7 @@ export class UserUseCase {
         query.innerJoinAndSelect("user.association","association")
         query.innerJoinAndSelect("user.role","role")
         query.innerJoinAndSelect("association.ged","ged")
+        query.leftJoinAndSelect("user.adhesion","adhesion")
         query.where("user.id = :id", {id: id})
         if(association) {
             query.andWhere("association.id = :assoId", {assoId: association.id})
@@ -135,6 +144,41 @@ export class UserUseCase {
         const userUpdate = await repo.save(userFound)
         return userUpdate
     }
+
+    async updateMyInfoUser(id: number, updateUser: UpdateMyInfoUserParams, association?: Association): Promise<User | null> {
+        const query = this.db.createQueryBuilder(User,"user")
+        query.innerJoinAndSelect("user.role","role")
+        query.innerJoinAndSelect("user.association","asso")
+        query.where("user.id = :userId", {userId: id})
+
+        if(association !== undefined) {
+            query.andWhere("asso.id = :assoId", {assoId: association.id})
+        }
+        const userFound = await query.getOne()
+
+        if (userFound === null) return null
+
+        if (updateUser.email) {
+            userFound.email = updateUser.email
+        }
+
+        if (updateUser.firstName) {
+            userFound.firstName = updateUser.firstName
+        }
+
+        if (updateUser.lastName) {
+            userFound.lastName = updateUser.lastName
+        }
+
+        if (updateUser.address) {
+            userFound.address = updateUser.address
+        }
+
+
+        const repo = this.db.getRepository(User)
+        const userUpdate = await repo.save(userFound)
+        return userUpdate
+    } 
 
     async deleteUser(id: number, association?: Association, isSuperAdmin?: boolean): Promise<User | null> {
         const query = this.db.createQueryBuilder(User,"user")

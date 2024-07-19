@@ -68,3 +68,12 @@ export const bodyMailAdhesion = (adhesion: Adhesion, transaction: CompteTransact
         + adhesion.typeAdhesion.montant + "€\n - Validité : "
         + formatDate(adhesion.endDate) + "\n\nCordialement"
 }
+
+export const bodyMailAdhesionExpirationSoon = (adhesion: Adhesion, user: User): string => {
+    return "Bonjour " 
+        + user.firstName + " " + user.lastName
+        + ", \n\nVotre adhésion arrive bientôt à expiration !\nPour rappel voici les détails de votre adhésion : \n - type : " 
+        + adhesion.typeAdhesion.type + "\n - montant : " 
+        + adhesion.typeAdhesion.montant + "€\n - Validité : "
+        + formatDate(adhesion.endDate) + "\n\nCordialement"
+}

@@ -28,12 +28,12 @@ export class Vote {
 
     @OneToOne(() => Vote, vote => vote.childVote)
     @JoinColumn()
-    parentVote: Vote
+    parentVote: Vote | null
 
     @OneToOne(() => Vote, vote => vote.parentVote)
     childVote: Vote
 
-    constructor(id: number, name: string, beginDate: Date, endDate: Date, reponses: Reponse[], association: Association, assemblee: Assemblee, parentVote: Vote, childVote: Vote) {
+    constructor(id: number, name: string, beginDate: Date, endDate: Date, reponses: Reponse[], association: Association, assemblee: Assemblee, parentVote: Vote | null, childVote: Vote) {
         this.id = id,
         this.name = name,
         this.beginDate = beginDate,

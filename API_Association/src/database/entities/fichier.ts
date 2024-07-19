@@ -18,8 +18,8 @@ export class Fichier {
     @ManyToOne(() => GED, ged => ged.files)
     ged: GED
 
-    @ManyToOne(() => Fichier, fichier => fichier.folders, {onDelete: 'CASCADE'})
-    parentFolder: Fichier
+    @ManyToOne(() => Fichier, fichier => fichier.folders, {onDelete: 'CASCADE', nullable: true})
+    parentFolder: Fichier | null
 
     @OneToMany(() => Fichier, fichiers => fichiers.parentFolder, {onDelete: 'CASCADE'})
     folders: Fichier[]
@@ -27,7 +27,7 @@ export class Fichier {
     @CreateDateColumn({type:"datetime"})
     addedDate: Date
 
-    constructor(id: number, name: string,type: string, path: string, ged: GED, parentFolder: Fichier, folders: Fichier[], addedDate: Date) {
+    constructor(id: number, name: string,type: string, path: string, ged: GED, parentFolder: Fichier | null, folders: Fichier[], addedDate: Date) {
         this.id = id,
         this.name = name,
         this.type = type,
