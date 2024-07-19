@@ -10,6 +10,15 @@ const main = async () => {
     const app = express()
     const port = 3000
 
+    const corsOptions = {
+        origin: '*',
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+        allowedHeaders: 'Content-Type, Authorization',
+        credentials: true,
+    }
+
+    app.use(cors(corsOptions))
+
     try {
 
         await AppDataSource.initialize()
@@ -22,7 +31,8 @@ const main = async () => {
 
     swaggerDocs(app, port)
 
-    app.use(express.json(), cors())
+    app.use(express.json())
+
     initRoutes(app)
     
     app.listen(port, () => {
