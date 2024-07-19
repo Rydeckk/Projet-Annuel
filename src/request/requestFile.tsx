@@ -70,7 +70,7 @@ export async function downloadFile(domainName: string, file: Fichier): Promise<v
 export async function upload(domainName: string, file: File, parentFolderId: number = 0): Promise<Fichier> {
     const url = new URL("http://vps-1d054ff8.vps.ovh.net:3000/association/mine/ged/mine/upload/folder/" + String(parentFolderId))
     const formdata = new FormData();
-    formdata.append(file.name,file)
+    formdata.append("file",file)
     const headers = new Headers({'Content-Type': 'application/json', 'Authorization': 'Bearer '+ localStorage.getItem(domainName+"-token")})
     
     const response = await fetch(url, {
