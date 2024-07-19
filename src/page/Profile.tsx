@@ -16,8 +16,8 @@ export function Profile() {
         <div className="div_profile">
             <MenuLeft></MenuLeft>
             <div className="div_inner_profile">
-                <div style={{color: "#002f86"}}>
-                    <h1>{traduction.welcomeMySpace}</h1>
+                <div>
+                    <h1 className="title_section">{traduction.welcomeMySpace}</h1>
                 </div>
                 <div className="div_profile_content">
                     <Routes>

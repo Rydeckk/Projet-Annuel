@@ -7,7 +7,7 @@ export function About() {
 
     return (
         <div>
-            <h1>{traduction.about}</h1>
+            <h1 className="title_section">{traduction.about}</h1>
             <div>
                 <p className="paragraphe_description">{asso.asso?.description}</p>
             </div>

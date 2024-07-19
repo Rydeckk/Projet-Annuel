@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import traduction from "../../traductions/traduction.json"
 import { logout } from "../request/request";
 import { NavLink, useNavigate } from "react-router-dom";
-import { useAssoContext } from "../main";
+import { useAssoContext, useUserContext } from "../main";
 
 export function Menu_top() {
     const [isConnected, setIsConnected] = useState(false)
     const navigate = useNavigate()
     const asso = useAssoContext()
+    const userContext = useUserContext()
 
     if(asso.asso !== null){
         useEffect(() => {
@@ -43,7 +44,10 @@ export function Menu_top() {
                         <NavLink id="lEvent" to={"/" + asso.asso.domainName + "/event"} className={({ isActive }) => (isActive ? "link link_active" : "link")} end>{traduction.event}</NavLink>
                     </div>
                     <div className="div_padding10_horizontal">
-                        <NavLink id="lCalendar" to={"/" + asso.asso.domainName + "/calendar"} className={({ isActive }) => (isActive ? "link link_active" : "link")} end>{traduction.calendar}</NavLink>
+                        <NavLink id="lSondage" to={"/" + asso.asso.domainName + "/sondage"} className={({ isActive }) => (isActive ? "link link_active" : "link")} end>{traduction.sondage}</NavLink>
+                    </div>
+                    <div className="div_padding10_horizontal">
+                        <NavLink id="lCalendar" to={"/" + asso.asso.domainName + "/assemblee"} className={({ isActive }) => (isActive ? "link link_active" : "link")} end>{traduction.assemblee}</NavLink>
                     </div>
                     <div className="div_padding10_horizontal">
                         <NavLink id="btDonate" className={({ isActive }) => (isActive ? "link link_active" : "link")} to={"/" + asso.asso.domainName + "/donate"} end>{traduction.donate}</NavLink>
@@ -61,11 +65,15 @@ export function Menu_top() {
                     </div>)}
                     {isConnected && 
                     (<div className="div_align_item">
-                        <label style={{color: "#fff"}}>Bonjour Monsieur</label>
-                        <NavLink style={{padding: "0px 10px"}} id="lMyProfile" to={"/"+asso.asso?.domainName+"/myprofile"} end>
-                            <img src="/icone/user.png"></img>
+                        <label className="label_hello">{traduction.hello} <br/> {userContext.user?.lastname} {userContext.user?.firstname}</label>
+                        <NavLink style={{padding: "0px 20px"}} id="lMyProfile" to={"/"+asso.asso?.domainName+"/myprofile"} className={"tooltip"} end>
+                            <img src="/icone/user.png" className="taille_icone30" alt={traduction.my_profile}></img>
+                            <span className="tooltiptext">{traduction.my_profile}</span>
                         </NavLink>
-                        <img src="/icone/152535.png" onClick={handleLogout} className="clickable-image"></img>
+                        <div className="tooltip">
+                            <img src="/icone/logoutWhite.png" onClick={handleLogout} className="clickable-image taille_icone30" alt={traduction.logout}></img>
+                            <span className="tooltiptext">{traduction.logout}</span>
+                        </div>
                     </div>)}
                 </div>
                 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import traduction from "../../traductions/traduction.json"
 import { Event } from "../component/Event";
-import { useAssoContext } from "../main";
+import { useAssoContext, useUserContext } from "../main";
 import { createEvent, deleteEvent, Evenement, getListEvent, getListEventPublic, updateEvent } from "../request/requestEvent";
 import { PopupEvent } from "../component/popupEvent";
 
@@ -10,6 +10,7 @@ export function Events() {
     const [eventList, setEventList] = useState<Array<Evenement>>([])
     const asso = useAssoContext()
     const [isOpen, setIsOpen] = useState(false);
+    const user = useUserContext()
 
     const togglePopup = () => {
         setIsOpen(!isOpen);
@@ -66,9 +67,9 @@ export function Events() {
     
     return (
         <div>
-            <h1>{traduction.event}</h1>
+            <h1 className="title_section">{traduction.event}</h1>
             <div style={{display: "flex"}}>
-                <div style={{display: "flex", flexDirection: "row", paddingTop: "20px", width: "fit-content"}}>
+                <div className="div_content_card">
                     {eventList.map((event) => (
                         <Event 
                         key={event.id} 
@@ -77,9 +78,9 @@ export function Events() {
                         onDelete={() => onDelete(event)}></Event>
                     ))}
                 </div>
-                <div style={{paddingTop: "35px"}}>
+                {user.user?.role.isAdmin && (<div style={{paddingTop: "35px"}}>
                     <img src="/icone/add.png" onClick={togglePopup} style={{height:"30px", width: "30px"}} className="clickable-image"></img>
-                </div>
+                </div>)}
 
                 <PopupEvent 
                 isOpen={isOpen} 

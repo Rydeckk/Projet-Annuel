@@ -7,15 +7,13 @@ import { PopupFichier } from "../component/popupFichier";
 import { PopupFichierUpload } from "../component/popupFichierUpload";
 
 const sortFiles = (files: Array<Fichier>): Array<Fichier> => {
-    return files.sort((a, b) => {
-        if (a.type === 'folder' && b.type === 'file') {
-            return -1;
-        }
-        if (a.type === 'file' && b.type === 'folder') {
-            return 1;
-        }
-        return 0;
-    })
+    const folders = files.filter(file => file.type === 'folder');
+    const filesOnly = files.filter(file => file.type === 'file');
+
+    const sortedFolders = folders.sort((a, b) => a.name.localeCompare(b.name));
+    const sortedFiles = filesOnly.sort((a, b) => a.name.localeCompare(b.name));
+
+    return [...sortedFolders, ...sortedFiles];
 }
 
 export function Ged() {
@@ -73,7 +71,8 @@ export function Ged() {
     const handleSave = async (file: CreateFichier) => {
         if(asso.asso) {
             const fileCreated = await createFile(asso.asso.domainName, file)
-            setFileList([...fileList,fileCreated])
+            console.log(fileCreated)
+            setFileList(sortFiles([...fileList,fileCreated]))
         }
         
         setIsOpenPopupFichier(false)
@@ -82,7 +81,7 @@ export function Ged() {
     const handleSaveUpload = async (file: File) => {
         if(asso.asso) {
             const fileCreated = await upload(asso.asso.domainName, file, parentFolder?.id)
-            setFileList([...fileList,fileCreated])
+            setFileList(sortFiles([...fileList,fileCreated]))
         }
         
         setIsOpenPopupFichierUpload(false)
@@ -100,13 +99,13 @@ export function Ged() {
                     <label>{traduction.upload}</label>
                 </div>
             </div>
-            <div className="div_ged_header_list">
-                <label className="width_column">{traduction.file_folder}</label>
-                <label className="width_column">{traduction.file_name}</label>
-                <label className="width_column">{traduction.added_date}</label>
-                <label className="width_column">{traduction.download}</label>
-            </div>
             <div className="div_ged_content">
+                <div className="div_ged_header_list">
+                    <label className="width_column">{traduction.file_folder}</label>
+                    <label className="width_column">{traduction.file_name}</label>
+                    <label className="width_column">{traduction.added_date}</label>
+                    <label className="width_column">{traduction.download}</label>
+                </div>
                 { parentFolder && (<div className="div_file_ged clickable-image" onClick={handleClickPrevFolder}>
                     <div className="div_row_content">
                         <div className="width_column">

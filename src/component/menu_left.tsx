@@ -9,6 +9,9 @@ export function MenuLeft() {
 
     return (
         <nav className="div_menu_left">
+            <NavLink to={"/" + asso.asso?.domainName} className="link_return">
+                <img src='/icone/returnWhite.png' className='taille_icone50'></img>
+            </NavLink>
             <div className="div_inner_menu">
                 <div className="div_padding10">
                     <NavLink to={"myinfo"} className={({ isActive }) => (isActive ? "link link_active" : "link")} end>{traduction.myinfo}</NavLink>

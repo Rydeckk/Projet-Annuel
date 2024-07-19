@@ -6,7 +6,7 @@ import { Association } from "../request/request";
 export function Donate() {
     return (
         <div>
-            <h1>{traduction.donate}</h1>
+            <h1 className="title_section">{traduction.donate}</h1>
         </div>
     )
 }
