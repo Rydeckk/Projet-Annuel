@@ -76,7 +76,6 @@ export async function updateEvent(event: Evenement, domainName: string) {
 }
 
 export async function createEvent(event: EvenementWithoutId, domainName: string): Promise<Evenement> {
-    console.log(JSON.stringify(event))
     const headers = new Headers({'Content-Type': 'application/json', 'Authorization': 'Bearer '+ localStorage.getItem(domainName+"-token")})
     const response = await fetch("http://vps-1d054ff8.vps.ovh.net:3000/association/mine/event", {
     

@@ -7,6 +7,13 @@ export type Fichier = {
     parentFolder: Fichier
 }
 
+export type CreateFichier = {
+    name: string,
+    type: string,
+    parentFolderId?: number,
+    content?: string
+}
+
 function buildUrlFile(baseUrl: string, parentFolderId?: number): string {
     const params = new URLSearchParams();
   
@@ -15,7 +22,7 @@ function buildUrlFile(baseUrl: string, parentFolderId?: number): string {
     }
   
     return `${baseUrl}?${params.toString()}`;
-  }
+}
 
 export async function getListFile(domainName: string, parentFolderId?: number): Promise<{file: Array<Fichier>}> {
     const url = buildUrlFile("http://vps-1d054ff8.vps.ovh.net:3000/association/mine/ged/mine/file", parentFolderId);
@@ -60,18 +67,21 @@ export async function downloadFile(domainName: string, file: Fichier): Promise<v
     
 }
 
-export async function upload(domainName: string, parentFolderId: number = 0): Promise<void> {
-    const url = buildUrlFile("http://vps-1d054ff8.vps.ovh.net:3000/association/mine/ged/mine/upload/folder/", parentFolderId);
+export async function upload(domainName: string, file: File, parentFolderId: number = 0): Promise<Fichier> {
+    const url = new URL("http://vps-1d054ff8.vps.ovh.net:3000/association/mine/ged/mine/upload/folder/" + String(parentFolderId))
+    const formdata = new FormData();
+    formdata.append(file.name,file)
     const headers = new Headers({'Content-Type': 'application/json', 'Authorization': 'Bearer '+ localStorage.getItem(domainName+"-token")})
     
     const response = await fetch(url, {
         method: 'POST',
-        headers: headers
+        headers: headers,
+        body: formdata
     })
 
     const data = await response.json()
-    const files = data.fichiers
-
+    
+    return data
 }
 
 export async function getFile(domainName: string, file: Fichier): Promise<Fichier | null> {
@@ -87,4 +97,19 @@ export async function getFile(domainName: string, file: Fichier): Promise<Fichie
     const fileFound = data
 
     return fileFound
+}
+
+export async function createFile(domainName: string, file: CreateFichier): Promise<Fichier> {
+    console.log(file)
+    const headers = new Headers({'Content-Type': 'application/json', 'Authorization': 'Bearer '+ localStorage.getItem(domainName+"-token")})
+    const response = await fetch("http://vps-1d054ff8.vps.ovh.net:3000/association/mine/ged/mine/file", {
+    
+    method: 'POST',
+    headers: headers,
+    body: JSON.stringify(file)
+    })
+
+    const data = await response.json()
+
+    return data
 }

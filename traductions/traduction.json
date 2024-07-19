@@ -31,5 +31,9 @@
     "added_date": "Ajouter le",
     "download": "Télécharger",
     "add": "Ajouter",
-    "upload": "Importer"
+    "upload": "Importer",
+    "file_type": "Type",
+    "file_content": "Contenu",
+    "select_type": "Selectionner un type",
+    "select_file": "Selectionner un fichier"
 }
