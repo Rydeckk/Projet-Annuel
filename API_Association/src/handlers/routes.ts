@@ -1957,7 +1957,6 @@ export const initRoutes = (app: express.Express) => {
     })
 
     //#endregion
-    
 
     //#region Routes TypeAdhesion
     app.post("/association/mine/typeAdhesion", authMiddlewareAdmin, async (req: Request, res: Response) => {
