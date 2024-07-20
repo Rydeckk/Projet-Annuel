@@ -6,7 +6,7 @@ export class Local {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column()
+    @Column({charset: 'utf8mb4', collation: 'utf8mb4_unicode_ci'})
     name: string
 
     @Column()
@@ -18,13 +18,13 @@ export class Local {
     @Column()
     country: string
 
-    @Column()
+    @Column({charset: 'utf8mb4', collation: 'utf8mb4_unicode_ci'})
     city: string
 
     @Column()
     zip: string
 
-    @Column()
+    @Column({charset: 'utf8mb4', collation: 'utf8mb4_unicode_ci'})
     address: string
 
     @ManyToOne(() => Association, association => association.locaux)

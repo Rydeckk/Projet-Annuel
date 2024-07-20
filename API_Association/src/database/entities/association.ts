@@ -18,10 +18,10 @@ export class Association {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column()
+    @Column({charset: 'utf8mb4', collation: 'utf8mb4_unicode_ci'})
     name: string
 
-    @Column()
+    @Column({charset: 'utf8mb4', collation: 'utf8mb4_unicode_ci'})
     description: string
 
     @Column({unique: true})

@@ -7,7 +7,7 @@ export class TypeAdhesion {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column()
+    @Column({charset: 'utf8mb4', collation: 'utf8mb4_unicode_ci'})
     type: string
 
     @Column()

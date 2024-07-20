@@ -7,10 +7,10 @@ export class Assemblee {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column()
+    @Column({charset: 'utf8mb4', collation: 'utf8mb4_unicode_ci'})
     location: string
 
-    @Column()
+    @Column({charset: 'utf8mb4', collation: 'utf8mb4_unicode_ci'})
     description: string
 
     @Column({type: "datetime"})

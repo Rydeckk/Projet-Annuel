@@ -18,5 +18,6 @@ export const AppDataSource = new DataSource({
     ],
     migrations: [
         "src/database/migrations/*.ts"
-    ]
+    ],
+    charset: "utf8mb4"
 })
