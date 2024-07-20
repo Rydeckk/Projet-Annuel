@@ -43,4 +43,9 @@ async function checkLessThanTenDaysMemberShip() {
     })
 }
 
-cron.schedule('*/30 * * * *', checkLessThanTenDaysMemberShip)
+cron.schedule('0 2 * * *', checkLessThanTenDaysMemberShip,
+    {
+        scheduled: true,
+        timezone: "Europe/Paris"
+    }
+)

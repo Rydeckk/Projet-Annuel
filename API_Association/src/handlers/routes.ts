@@ -26,7 +26,7 @@ import { EvenementUseCase } from "../domain/evenement-usecase";
 import { createVoteValidation, getVotesValidation, getVoteValidation, updateVoteValidation } from "./validators/vote-validator";
 import { Vote } from "../database/entities/vote";
 import { VoteUseCase } from "../domain/vote-usecase";
-import { createReponseValidation, getReponseSondageValidation, getReponsesValidation, getReponseValidation, updateReponseValidation } from "./validators/reponse-validator";
+import { createReponseValidation, getReponsesValidation, getReponseValidation, updateReponseValidation } from "./validators/reponse-validator";
 import { Reponse } from "../database/entities/reponse";
 import { ReponseUseCase } from "../domain/reponse-usecase";
 import { createTypeAdhesionValidation, getListTypeAdhesionValidation, getTypeAdhesionValidation, updateTypeAdhesionValidation } from "./validators/typeAdhesion-validator";
@@ -1474,7 +1474,7 @@ export const initRoutes = (app: express.Express) => {
     })
     //#endregion
 
-    //#region Routes Reponses
+    //#region Routes Reponses Sondages
     app.post("/association/mine/sondage/:sondageId/response", authMiddlewareAdmin , async (req: Request, res: Response) => {
         const validation = createReponseValidation.validate(req.body)
 
@@ -1498,14 +1498,18 @@ export const initRoutes = (app: express.Express) => {
             const createdReponse = await AppDataSource.getRepository(Reponse).save({...createReponseRequest,sondage: sondageFound})
             
             if(createReponseRequest.applicantId) {
+                const applicants: User[] = []
                 const userUseCase = new UserUseCase(AppDataSource)
-                const userFound = await userUseCase.getUser(createReponseRequest.applicantId,userConnectedFound?.association,false)
-                if(userFound === null) {
-                    res.status(404).send({error: `User ${createReponseRequest.applicantId} not found`})
-                    return
-                }
-
-                createdReponse.applicants.push(userFound)
+                createReponseRequest.applicantId.forEach(async (applicant) => {
+                    const userFound = await userUseCase.getUser(applicant,userConnectedFound?.association,false)
+                    if(userFound === null) {
+                        res.status(404).send({error: `User ${createReponseRequest.applicantId} not found`})
+                        return
+                    }
+                    applicants.push(userFound)
+                })
+            
+                createdReponse.applicants = applicants
                 await AppDataSource.getRepository(Reponse).save(createdReponse) 
             }
             
@@ -1517,7 +1521,7 @@ export const initRoutes = (app: express.Express) => {
     })
 
     app.post("/association/mine/sondage/:sondageId/response/:id", authMiddleware , async (req: Request, res: Response) => {
-        const validation = getReponseSondageValidation.validate(req.params)
+        const validation = getReponseValidation.validate(req.params)
 
         if (validation.error) {
             res.status(400).send(generateValidationErrorMessage(validation.error.details))
@@ -1526,13 +1530,19 @@ export const initRoutes = (app: express.Express) => {
 
         const chooseReponseRequest = validation.value
 
+        let sondageId: number = 0
+        if(chooseReponseRequest.sondageId !== undefined) {
+            sondageId = chooseReponseRequest.sondageId
+        }
+
         const userConnectedFound = await getConnectedUser(req.user.userId, AppDataSource)
         if(!userConnectedFound) {
             res.status(404).send({error: "User not found"})
             return
         }
         const sondageUseCase = new SondageUseCase(AppDataSource)
-        const sondageFound = await sondageUseCase.getSondage(chooseReponseRequest.sondageId,userConnectedFound?.association)
+        
+        const sondageFound = await sondageUseCase.getSondage(sondageId,userConnectedFound?.association)
         if(sondageFound === null) {
             res.status(404).send({error: `Sondage ${chooseReponseRequest.sondageId} not found`})
             return
@@ -1541,7 +1551,7 @@ export const initRoutes = (app: express.Express) => {
         try {
 
             const reponseUseCase = new ReponseUseCase(AppDataSource)
-            const selectedReponse = await reponseUseCase.getReponseSondage(chooseReponseRequest.id,sondageFound,userConnectedFound.association)
+            const selectedReponse = await reponseUseCase.getReponse(chooseReponseRequest.id,sondageFound)
             if(selectedReponse === null) {
                 res.status(404).send({error: `Reponse ${chooseReponseRequest.id} not found`})
                 return
@@ -1558,7 +1568,7 @@ export const initRoutes = (app: express.Express) => {
     })
 
     app.get("/association/mine/sondage/:sondageId/response/:id", authMiddleware, async (req:Request, res:Response) => {
-        const validation = getReponseSondageValidation.validate(req.params)
+        const validation = getReponseValidation.validate(req.params)
 
         if (validation.error) {
             res.status(400).send(generateValidationErrorMessage(validation.error.details))
@@ -1567,19 +1577,23 @@ export const initRoutes = (app: express.Express) => {
 
         const reponseRequest = validation.value
 
+        let sondageId: number = 0
+        if(reponseRequest.sondageId !== undefined) {
+            sondageId = reponseRequest.sondageId
+        }
+
         const userFound = await getConnectedUser(req.user.userId, AppDataSource)
 
         const sondageUseCase = new SondageUseCase(AppDataSource)
-        const sondageFound = await sondageUseCase.getSondage(reponseRequest.sondageId,userFound?.association)
+        const sondageFound = await sondageUseCase.getSondage(sondageId,userFound?.association)
         if(sondageFound === null) {
             res.status(404).send({error: `Sondage ${reponseRequest.sondageId} not found`})
             return
         }
 
         try {
-            console.log(reponseRequest.id)
             const reponseUseCase = new ReponseUseCase(AppDataSource)
-            const reponseFound = await reponseUseCase.getReponseSondage(reponseRequest.id,sondageFound,userFound?.association)
+            const reponseFound = await reponseUseCase.getReponse(reponseRequest.id,sondageFound)
             if (reponseFound === null) {
                 res.status(404).send({error: `Reponse ${reponseRequest.id} not found`})
                 return
@@ -1612,7 +1626,7 @@ export const initRoutes = (app: express.Express) => {
 
         try {
             const reponseUseCase = new ReponseUseCase(AppDataSource)
-            const reponseFound = await reponseUseCase.getListReponseSondage({...getReponsesRequest, page, limit, associationId: userFound?.association.id})
+            const reponseFound = await reponseUseCase.getListReponse({...getReponsesRequest, page, limit, assoId: userFound?.association.id})
             res.status(200).send(reponseFound)
 
         } catch (error) {
@@ -1631,11 +1645,23 @@ export const initRoutes = (app: express.Express) => {
 
         const updateReponseRequest = validation.value
 
+        let sondageId: number = 0
+        if(updateReponseRequest.sondageId !== undefined) {
+            sondageId = updateReponseRequest.sondageId
+        }
+
         const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+
+        const sondageUseCase = new SondageUseCase(AppDataSource)
+        const sondageFound = await sondageUseCase.getSondage(sondageId,userFound?.association)
+        if(sondageFound === null) {
+            res.status(404).send({error: `Sondage ${updateReponseRequest.sondageId} not found`})
+            return
+        }
 
         try {
             const reponseUseCase = new ReponseUseCase(AppDataSource)
-            const reponseFound = await reponseUseCase.updateReponseSondage(updateReponseRequest.id,{...updateReponseRequest},userFound?.association)
+            const reponseFound = await reponseUseCase.updateReponse(updateReponseRequest.id,{...updateReponseRequest}, sondageFound, undefined, sondageFound.association)
             if (reponseFound === null) {
                 res.status(404).send({error: `Reponse ${updateReponseRequest.id} not found`})
                 return
@@ -1658,11 +1684,23 @@ export const initRoutes = (app: express.Express) => {
 
         const deleteReponseRequest = validation.value
 
+        let sondageId: number = 0
+        if(deleteReponseRequest.sondageId !== undefined) {
+            sondageId = deleteReponseRequest.sondageId
+        }
+
         const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+
+        const sondageUseCase = new SondageUseCase(AppDataSource)
+        const sondageFound = await sondageUseCase.getSondage(sondageId,userFound?.association)
+        if(sondageFound === null) {
+            res.status(404).send({error: `Sondage ${deleteReponseRequest.sondageId} not found`})
+            return
+        }
 
         try {
             const reponseUseCase = new ReponseUseCase(AppDataSource)
-            const reponseFound = await reponseUseCase.deleteReponseSondage(deleteReponseRequest.id,deleteReponseRequest.sondageId, userFound?.association)
+            const reponseFound = await reponseUseCase.deleteReponse(deleteReponseRequest.id,sondageFound)
             if (reponseFound === null) {
                 res.status(404).send({error: `Reponse ${deleteReponseRequest.id} not found`})
                 return
@@ -1676,6 +1714,250 @@ export const initRoutes = (app: express.Express) => {
     })
 
     //#endregion
+
+    //#region Routes Reponses Votes
+    app.post("/association/mine/vote/:voteId/response", authMiddlewareAdmin , async (req: Request, res: Response) => {
+        const validation = createReponseValidation.validate(req.body)
+
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+            return
+        }
+
+        const createReponseRequest = validation.value
+        const voteId = +req.params.voteId
+
+        const userConnectedFound = await getConnectedUser(req.user.userId, AppDataSource)
+        const voteUseCase = new VoteUseCase(AppDataSource)
+        const voteFound = await voteUseCase.getVote(voteId,userConnectedFound?.association)
+        if(voteFound === null) {
+            res.status(404).send({error: `Vote ${voteId} not found`})
+            return
+        }
+        
+        try {
+            const createdReponse = await AppDataSource.getRepository(Reponse).save({...createReponseRequest,vote: voteFound})
+            
+            if(createReponseRequest.applicantId) {
+                const applicants: User[] = []
+                const userUseCase = new UserUseCase(AppDataSource)
+                createReponseRequest.applicantId.forEach(async (applicant) => {
+                    const userFound = await userUseCase.getUser(applicant,userConnectedFound?.association,false)
+                    if(userFound === null) {
+                        res.status(404).send({error: `User ${applicant} not found`})
+                        return
+                    }
+                    applicants.push(userFound)
+                })
+            
+                createdReponse.applicants = applicants
+                await AppDataSource.getRepository(Reponse).save(createdReponse) 
+            }
+            
+            res.status(200).send(createdReponse)
+        } catch (error) {
+            console.log(error)
+            res.status(500).send({ error: "Internal error" })
+        }
+    })
+
+    app.post("/association/mine/vote/:voteId/response/:id", authMiddleware , async (req: Request, res: Response) => {
+        const validation = getReponseValidation.validate(req.params)
+
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+            return
+        }
+
+        const chooseReponseRequest = validation.value
+
+        let voteId: number = 0
+        if(chooseReponseRequest.voteId !== undefined) {
+            voteId = chooseReponseRequest.voteId
+        }
+
+        const userConnectedFound = await getConnectedUser(req.user.userId, AppDataSource)
+        if(!userConnectedFound) {
+            res.status(404).send({error: "User not found"})
+            return
+        }
+
+        const voteUseCase = new VoteUseCase(AppDataSource)
+        const voteFound = await voteUseCase.getVote(voteId,userConnectedFound?.association)
+        if(voteFound === null) {
+            res.status(404).send({error: `Vote ${chooseReponseRequest.voteId} not found`})
+            return
+        }
+        
+        try {
+
+            const reponseUseCase = new ReponseUseCase(AppDataSource)
+            const selectedReponse = await reponseUseCase.getReponse(chooseReponseRequest.id,undefined, voteFound)
+            if(selectedReponse === null) {
+                res.status(404).send({error: `Reponse ${chooseReponseRequest.id} not found`})
+                return
+            }
+            selectedReponse.voters.push(userConnectedFound)
+            selectedReponse.nbVote += 1
+            await AppDataSource.getRepository(Reponse).save(selectedReponse)
+
+            res.status(200).send(selectedReponse)
+        } catch (error) {
+            console.log(error)
+            res.status(500).send({ error: "Internal error" })
+        }
+    })
+
+    app.get("/association/mine/vote/:voteId/response/:id", authMiddleware, async (req:Request, res:Response) => {
+        const validation = getReponseValidation.validate(req.params)
+
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+            return
+        }
+
+        const reponseRequest = validation.value
+
+        let voteId: number = 0
+        if(reponseRequest.voteId !== undefined) {
+            voteId = reponseRequest.voteId
+        }
+
+        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+
+        const voteUseCase = new VoteUseCase(AppDataSource)
+        const voteFound = await voteUseCase.getVote(voteId,userFound?.association)
+        if(voteFound === null) {
+            res.status(404).send({error: `Vote ${reponseRequest.voteId} not found`})
+            return
+        }
+
+        try {
+            const reponseUseCase = new ReponseUseCase(AppDataSource)
+            const reponseFound = await reponseUseCase.getReponse(reponseRequest.id,undefined,voteFound)
+            if (reponseFound === null) {
+                res.status(404).send({error: `Reponse ${reponseRequest.id} not found`})
+                return
+            }
+            res.status(200).send(reponseFound)
+
+        } catch (error) {
+            console.log(error)
+            res.status(500).send({ error: "Internal error" })
+        }
+    })
+
+    app.get("/association/mine/vote/:voteId/response", authMiddleware, async (req: Request, res: Response) => {
+        const validation = getReponsesValidation.validate({...req.params,...req.query})
+
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+            return
+        }
+
+        const getReponsesRequest = validation.value
+
+        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+
+        let limit = 20
+        if (getReponsesRequest.limit) {
+            limit = getReponsesRequest.limit
+        }
+        const page = getReponsesRequest.page ?? 1
+
+        console.log(getReponsesRequest)
+
+        try {
+            const reponseUseCase = new ReponseUseCase(AppDataSource)
+            const reponseFound = await reponseUseCase.getListReponse({...getReponsesRequest, page, limit, assoId: userFound?.association.id})
+            res.status(200).send(reponseFound)
+
+        } catch (error) {
+            res.status(500).send({ error: "Internal error" })
+        }
+
+    })
+
+    app.patch("/association/mine/vote/:voteId/response/:id", authMiddlewareAdmin ,async (req: Request, res: Response) => {
+        const validation = updateReponseValidation.validate({...req.params,...req.body})
+
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+            return
+        }
+
+        const updateReponseRequest = validation.value
+
+        let voteId: number = 0
+        if(updateReponseRequest.voteId !== undefined) {
+            voteId = updateReponseRequest.voteId
+        }
+
+        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+
+        const voteUseCase = new VoteUseCase(AppDataSource)
+        const voteFound = await voteUseCase.getVote(voteId,userFound?.association)
+        if(voteFound === null) {
+            res.status(404).send({error: `Vote ${updateReponseRequest.voteId} not found`})
+            return
+        }
+
+        try {
+            const reponseUseCase = new ReponseUseCase(AppDataSource)
+            const reponseFound = await reponseUseCase.updateReponse(updateReponseRequest.id,{...updateReponseRequest}, undefined, voteFound, voteFound.association)
+            if (reponseFound === null) {
+                res.status(404).send({error: `Reponse ${updateReponseRequest.id} not found`})
+                return
+            }
+            res.status(200).send(reponseFound)
+
+        } catch (error) {
+            console.log(error)
+            res.status(500).send({ error: "Internal error" })
+        }
+    })
+
+    app.delete("/association/mine/vote/:voteId/response/:id", authMiddlewareAdmin ,async (req: Request, res: Response) => {
+        const validation = getReponseValidation.validate(req.params)
+
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details))
+            return
+        }
+
+        const deleteReponseRequest = validation.value
+
+        let voteId: number = 0
+        if(deleteReponseRequest.voteId !== undefined) {
+            voteId = deleteReponseRequest.voteId
+        }
+
+        const userFound = await getConnectedUser(req.user.userId, AppDataSource)
+
+        const voteUseCase = new VoteUseCase(AppDataSource)
+        const voteFound = await voteUseCase.getVote(voteId,userFound?.association)
+        if(voteFound === null) {
+            res.status(404).send({error: `Vote ${deleteReponseRequest.voteId} not found`})
+            return
+        }
+
+        try {
+            const reponseUseCase = new ReponseUseCase(AppDataSource)
+            const reponseFound = await reponseUseCase.deleteReponse(deleteReponseRequest.id,undefined, voteFound)
+            if (reponseFound === null) {
+                res.status(404).send({error: `Reponse ${deleteReponseRequest.id} not found`})
+                return
+            }
+            res.status(200).send(reponseFound)
+
+        } catch (error) {
+            console.log(error)
+            res.status(500).send({ error: "Internal error" })
+        }
+    })
+
+    //#endregion
+    
 
     //#region Routes TypeAdhesion
     app.post("/association/mine/typeAdhesion", authMiddlewareAdmin, async (req: Request, res: Response) => {

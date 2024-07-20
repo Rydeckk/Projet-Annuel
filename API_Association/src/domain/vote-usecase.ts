@@ -38,6 +38,7 @@ export class VoteUseCase {
         query.innerJoin("vote.association","asso")
         query.leftJoinAndSelect("vote.parentVote","pVote")
         query.leftJoinAndSelect("vote.assemblee","assemblee")
+        query.leftJoinAndSelect("vote.reponses", "res")
         query.skip((voteFilter.page - 1) * voteFilter.limit)
         query.take(voteFilter.limit)
 
