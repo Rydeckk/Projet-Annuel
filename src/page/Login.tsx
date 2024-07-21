@@ -1,7 +1,7 @@
 import React, { FormEvent, useState } from "react";
 import traduction from "../../traductions/traduction.json"
-import { Association, login } from "../request/request";
-import { redirect, useNavigate } from "react-router-dom";
+import { login } from "../request/request";
+import { useNavigate } from "react-router-dom";
 import { useAssoContext, useUserContext } from "../main";
 import { getUser } from "../request/requestUser";
 
@@ -12,8 +12,8 @@ export function Login() {
     const asso = useAssoContext()
     const userContext = useUserContext()
 
-    const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
+    const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
         if(asso.asso !== null) {
             await login(asso.asso.domainName, {email,password})
             const user = await getUser(asso.asso.domainName)

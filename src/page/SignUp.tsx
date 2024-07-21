@@ -2,7 +2,8 @@ import React, { FormEvent, useState } from "react";
 import traduction from "../../traductions/traduction.json"
 import { Association, login, signUp } from "../request/request";
 import { useNavigate } from "react-router-dom";
-import { useAssoContext } from "../main";
+import { useAssoContext, useUserContext } from "../main";
+import { getUser } from "../request/requestUser";
 
 
 export function SignUp() {
@@ -13,6 +14,7 @@ export function SignUp() {
     const [address, setAddress] = useState<string>("")
     const navigate = useNavigate()
     const asso = useAssoContext()
+    const userContext = useUserContext()
 
     const handleSignUp = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
@@ -20,6 +22,8 @@ export function SignUp() {
         if(asso.asso !== null) {
             await signUp(asso.asso.domainName, {email,password,firstName,lastName,address})
             await login(asso.asso.domainName, {email, password})
+            const user = await getUser(asso.asso.domainName)
+            userContext.setUser(user)
             navigate("/" + asso.asso.domainName)
         }
         

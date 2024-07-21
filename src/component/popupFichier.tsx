@@ -21,8 +21,8 @@ export function PopupFichier({isOpen, handleClose, onSave, parentFolder}: PopupF
         setSelectedType(type.target.value)
     }
 
-    const handleSave = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
+    const handleSave = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
         onSave({name: name, type: selectedType, parentFolderId: parentFolder?.id, content: content})
         handleClose()
     }
@@ -32,27 +32,25 @@ export function PopupFichier({isOpen, handleClose, onSave, parentFolder}: PopupF
             { isOpen && (
                 <div className="popup">
                     <form onSubmit={handleSave} className="popup-inner">
-                        <img src='/icone/return.png' onClick={handleClose} className='taille_icone'></img>
-                        <div className="content">
-                            <div className="div_padding5_vertical">
-                                <label>{traduction.file_name}</label>
-                                <input value={name} className="input" onChange={(e) => setName(e.target.value)} required></input>
-                            </div>
-                            <div className="div_padding5_vertical">
-                                <label>{traduction.file_type}</label>
-                                <select value={selectedType} className="input" onChange={handleChange} required>
-                                    <option value={""}>{traduction.select_type}</option>
-                                {type.map((type, index) => (
-                                    <option key={index} value={type}>{type}</option>
-                                ))}
-                                </select>
-                            </div>
-                            {selectedType === "file" && 
-                            (<div className="div_padding5_vertical">
-                                <label>{traduction.file_content}</label>
-                                <textarea value={content} onChange={(c) => setContent(c.target.value)} rows={5} cols={40} />
-                            </div>)}
+                        <img src='/icone/return.png' onClick={handleClose} className='taille_icone clickable-image'></img>
+                        <div className="div_list_2_column">
+                            <label className='item_list_2_column'>{traduction.file_name}</label>
+                            <input value={name} className="input_popup item_list_2_column"  onChange={(e) => setName(e.target.value)} required></input>
                         </div>
+                        <div className="div_list_2_column">
+                            <label className='item_list_2_column'>{traduction.file_type}</label>
+                            <select value={selectedType} className="input_popup item_list_2_column" onChange={handleChange} required>
+                                <option value={""}>{traduction.select_type}</option>
+                            {type.map((type, index) => (
+                                <option key={index} value={type}>{type}</option>
+                            ))}
+                            </select>
+                        </div>
+                        {selectedType === "file" && 
+                        (<div className="div_list_2_column">
+                            <label className='item_list_2_column'>{traduction.file_content}</label>
+                            <textarea value={content} className="input_popup item_list_2_column"  onChange={(c) => setContent(c.target.value)} rows={5} cols={40} />
+                        </div>)}
                         <button id='btSave' type="submit" className="button_class">{traduction.save}</button>
                     </form>
                 </div>

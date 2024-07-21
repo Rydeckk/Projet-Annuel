@@ -27,12 +27,6 @@ export function Event({event, onDelete, onSave}: EventProps) {
         <div className="item_card">
             <div className="div_flex_end">
                 {user.user?.role.isAdmin && (<img src="/icone/crayon.png" className="taille_icone" onClick={togglePopup}></img>)}
-                <PopupEvent 
-                    isOpen={isOpen} 
-                    handleClose={togglePopup}
-                    onSave={handleSave}
-                    onDelete={onDelete}
-                    event={event} />
             </div>
             <div className="div_column">
                 <div className="div_list_2_column">
@@ -60,6 +54,12 @@ export function Event({event, onDelete, onSave}: EventProps) {
                     <button className="button_class" onClick={onDelete}>{traduction.delete}</button>
                 </div>
             </div>)}
+            <PopupEvent 
+                    isOpen={isOpen} 
+                    handleClose={togglePopup}
+                    onSave={handleSave}
+                    onDelete={onDelete}
+                    event={event} />
         </div>
     )
 }

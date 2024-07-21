@@ -32,7 +32,6 @@ export function Events() {
     }
 
     const onUpdate = async (eventUpdated: Evenement) => {
-        console.log(eventUpdated)
         setEventList(eventList.map((event) => (event.id === eventUpdated.id ? eventUpdated : event)))
         if(asso.asso) {
             updateEvent(eventUpdated,asso.asso.domainName)
@@ -81,12 +80,11 @@ export function Events() {
                 {user.user?.role.isAdmin && (<div style={{paddingTop: "35px"}}>
                     <img src="/icone/add.png" onClick={togglePopup} style={{height:"30px", width: "30px"}} className="clickable-image"></img>
                 </div>)}
-
-                <PopupEvent 
+            </div>
+            <PopupEvent 
                 isOpen={isOpen} 
                 handleClose={togglePopup}
                 onSave={onSave}/>
-            </div>
         </div>
     )
 }

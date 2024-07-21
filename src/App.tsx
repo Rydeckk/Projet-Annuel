@@ -30,6 +30,10 @@ export function App() {
     }
   }, [location.pathname, asso.asso]);
 
+  useEffect(() => {
+    
+  })
+
   if (asso.asso !== null) {
     return (
       <div className="div_root">

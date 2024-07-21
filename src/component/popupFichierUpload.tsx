@@ -22,8 +22,8 @@ export function PopupFichierUpload({isOpen, handleClose, onSave}: PopupFichierUp
         }
     }
 
-    const handleSave = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
+    const handleSave = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
         if(file) {
             onSave(file)
             handleClose()
@@ -40,13 +40,15 @@ export function PopupFichierUpload({isOpen, handleClose, onSave}: PopupFichierUp
                 <div className="popup">
                     <form onSubmit={handleSave} className="popup-inner">
                         <img src='/icone/return.png' onClick={handleClose} className='taille_icone'></img>
-                        <div className="content">
-                            <div className="div_padding5_vertical">
-                                <label>{traduction.select_file}</label>
-                                <input type="file" className="input" onChange={handleFileChange} required></input>
-                                {preview && <img src={preview} alt="Preview" style={{ width: '100px', height: '100px' }} />}
-                            </div>
+                        <div className="div_list_2_column">
+                            <label className='item_list_2_column'>{traduction.select_file}</label>
+                            <input type="file" className="item_list_2_column input_file" onChange={handleFileChange} required></input>
                         </div>
+                        {preview && (<div className="div_flex_end">
+                            <div>
+                                <img className='item_list_2_column' src={preview} alt="Preview" style={{ width: '100px', height: '100px' }} />
+                            </div>
+                        </div>)}
                         <button id='btSave' type="submit" className="button_class">{traduction.upload}</button>
                     </form>
                 </div>
