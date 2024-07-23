@@ -1,0 +1,32 @@
+version: "3.1"
+
+intents:
+  - greet
+  - goodbye
+  - inform
+  - ask_schedule
+
+responses:
+  utter_greet:
+  - text: "Bonjour ! Comment puis-je vous aider aujourd'hui ?"
+
+  utter_did_that_help:
+  - text: "Cela vous aide t-il ?"
+
+  utter_goodbye:
+  - text: "Au revoir ! À bientôt !"
+  
+  utter_inform:
+  - text: "Il est de notre responsabilité de respecter et de protéger l’animal.
+           Au-delà de ce devoir, nous sommes convaincus que la relation que nous pouvons avoir avec un animal apporte à chacun bonheur, partage et complicité. 
+           Lutter contre la maltraitance et les trafics d’animaux, contre les abandons, sensibiliser le public et faire évoluer les mentalités, 
+           recueillir les animaux abandonnés et leur trouver une famille responsable, soutenir les petites associations,
+           éduquer les jeunes… nous nous mobilisons jour après jour pour permettre à chaque animal d’avoir une vie meilleure et préserver l’avenir du monde vivant.. 
+           Vous pouvez en savoir plus sur notre site web."
+  
+  utter_ask_schedule:
+  - text: "Nous sommes ouverts du lundi au vendredi, de 9h à 17h."
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true
