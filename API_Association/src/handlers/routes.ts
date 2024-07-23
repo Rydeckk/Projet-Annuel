@@ -56,7 +56,7 @@ import { bodyMailAdhesion, bodyMailAssemblee, sendEmail } from "../service/mail"
 import { updateThemeValidation } from "./validators/theme-validator";
 import { ThemeUseCase } from "../domain/theme-usecase";
 import { Association } from "../database/entities/association";
-import { createOrder } from "../service/paypal";
+import { createPayPalOrder } from "../service/paypal";
 
 export const initRoutes = (app: express.Express) => {
 
@@ -2673,9 +2673,9 @@ export const initRoutes = (app: express.Express) => {
             return
         }
 
-        const order = await createOrder(createDonRequest.montant)
-
         try {
+            const order = await createPayPalOrder(createDonRequest.montant)
+
             const createdDon = await AppDataSource.getRepository(CompteTransaction).save({
                 ...createDonRequest,
                 type: "don",
