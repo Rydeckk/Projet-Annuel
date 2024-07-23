@@ -17,7 +17,10 @@ export class Vote {
     @Column({type: "datetime"})
     endDate: Date
 
-    @OneToMany(() => Reponse, reponse => reponse.vote)
+    @Column({type: "boolean", default: true})
+    isValid: boolean
+
+    @OneToMany(() => Reponse, reponse => reponse.vote, {onDelete: "CASCADE"})
     reponses: Reponse[]
 
     @ManyToOne(() => Association, association => association.votes)
@@ -33,11 +36,12 @@ export class Vote {
     @OneToOne(() => Vote, vote => vote.parentVote)
     childVote: Vote
 
-    constructor(id: number, name: string, beginDate: Date, endDate: Date, reponses: Reponse[], association: Association, assemblee: Assemblee, parentVote: Vote | null, childVote: Vote) {
+    constructor(id: number, name: string, beginDate: Date, endDate: Date, isValid: boolean, reponses: Reponse[], association: Association, assemblee: Assemblee, parentVote: Vote | null, childVote: Vote) {
         this.id = id,
         this.name = name,
         this.beginDate = beginDate,
         this.endDate = endDate,
+        this.isValid = isValid,
         this.reponses = reponses,
         this.association = association,
         this.assemblee = assemblee,

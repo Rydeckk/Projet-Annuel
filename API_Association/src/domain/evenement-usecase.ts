@@ -35,6 +35,7 @@ export class EvenementUseCase {
     async getListEvent(eventFilter: ListEvenementFilter): Promise <{ events: Evenement[]}> {
         const query = this.db.createQueryBuilder(Evenement, 'event')
         query.innerJoin("event.association","asso")
+        query.leftJoinAndSelect("event.attendees", "attendees")
         query.skip((eventFilter.page - 1) * eventFilter.limit)
         query.take(eventFilter.limit)
 
@@ -66,7 +67,7 @@ export class EvenementUseCase {
 
     async updateEvenement(id: number, updateEvent: UpdateEvenementParams, asso?: Association): Promise <Evenement | null> {
         const repoEvent = this.db.getRepository(Evenement)
-        const eventFound = await repoEvent.findOne({where: {id: id, association: asso}})
+        const eventFound = await repoEvent.findOne({where: {id: id, association: asso}, relations: ["association", "attendees"]})
         if(eventFound === null) return null
 
         if(updateEvent.name!== undefined) {

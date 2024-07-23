@@ -207,6 +207,7 @@ export class UserUseCase {
         query.innerJoin('user.role','role')
         query.innerJoinAndSelect('user.adhesion', 'adhesion')
         query.innerJoin('user.association','asso')
+        query.innerJoinAndSelect('adhesion.typeAdhesion', 'cotisation')
         query.where('adhesion.isActive = :isActive', {isActive: true})
 
         if(isSuperAdmin !== undefined) {

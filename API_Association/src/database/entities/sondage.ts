@@ -16,7 +16,7 @@ export class Sondage {
     @Column({type: "datetime"})
     endDate: Date
 
-    @OneToMany(() => Reponse, reponse => reponse.sondage)
+    @OneToMany(() => Reponse, reponse => reponse.sondage, {onDelete: "CASCADE"})
     reponses: Reponse[]
 
     @ManyToOne(() => Association, association => association.sondages)

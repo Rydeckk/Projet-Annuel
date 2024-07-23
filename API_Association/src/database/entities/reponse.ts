@@ -14,10 +14,10 @@ export class Reponse {
     @Column({default:0 })
     nbVote: number = 0
 
-    @ManyToOne(() => Vote, vote => vote.reponses)
+    @ManyToOne(() => Vote, vote => vote.reponses, {onDelete: "CASCADE"})
     vote: Vote
 
-    @ManyToOne(() => Sondage, sondage => sondage.reponses)
+    @ManyToOne(() => Sondage, sondage => sondage.reponses, {onDelete: "CASCADE"})
     sondage: Sondage
 
     @ManyToMany(() => User, user => user.applicants, {nullable: true})

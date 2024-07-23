@@ -4,6 +4,7 @@ import { AppDataSource } from "./database/database";
 import { swaggerDocs } from "./swagger/swagger";
 import cors from "cors"
 import "./Cron/cron"
+import { checkMemberShipValidation, checkLessThanTenDaysMemberShip, createAssembleeYearly, createVote, scheduleTask } from "./Cron/cron";
 
 
 const main = async () => {
@@ -22,6 +23,8 @@ const main = async () => {
     try {
 
         await AppDataSource.initialize()
+
+        scheduleTask()
         console.error("well connected to database")
     } catch (error) {
         console.log(error)

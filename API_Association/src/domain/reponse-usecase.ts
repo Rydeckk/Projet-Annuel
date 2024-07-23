@@ -73,6 +73,7 @@ export class ReponseUseCase {
         const query = this.db.createQueryBuilder(Reponse, "rep")
             .leftJoinAndSelect("rep.voters","voters")
             .leftJoinAndSelect("rep.applicants","applicants")
+            .leftJoinAndSelect("rep.voters", "voters")
             .leftJoinAndSelect("rep.sondage","sondage")
             .leftJoinAndSelect("rep.vote","vote")
 
@@ -90,13 +91,14 @@ export class ReponseUseCase {
 
         if(updateReponse.applicantId !== undefined) {
             const applicants: User[] = []
-                const userUseCase = new UserUseCase(this.db)
-                updateReponse.applicantId.forEach(async (applicant) => {
-                    const userFound = await userUseCase.getUser(applicant,asso,false)
-                    if(userFound) {
-                        applicants.push(userFound)
-                    }
-                })
+            const userUseCase = new UserUseCase(this.db)
+            updateReponse.applicantId.forEach(async (applicant) => {
+                const userFound = await userUseCase.getUser(applicant,asso,false)
+                if(userFound) {
+                    applicants.push(userFound)
+                }
+            })
+            reponseFound.applicants = applicants
         }
 
         const repoReponse = this.db.getRepository(Reponse)

@@ -56,6 +56,7 @@ import { bodyMailAdhesion, bodyMailAssemblee, sendEmail } from "../service/mail"
 import { updateThemeValidation } from "./validators/theme-validator";
 import { ThemeUseCase } from "../domain/theme-usecase";
 import { Association } from "../database/entities/association";
+import { createOrder } from "../service/paypal";
 
 export const initRoutes = (app: express.Express) => {
 
@@ -1205,8 +1206,14 @@ export const initRoutes = (app: express.Express) => {
 
         const userFound = await getConnectedUser(req.user.userId, AppDataSource)
 
+        const assembleeFound = await AppDataSource.getRepository(Assemblee).findOne({where: {id: createVoteRequest.assembleeId}})
+        if(!assembleeFound) {
+            res.status(404).send({error: `Assemble ${createVoteRequest.assembleeId} not found`})
+            return
+        }
+
         try {
-            const createdVote = await AppDataSource.getRepository(Vote).save({...createVoteRequest,association: userFound?.association})
+            const createdVote = await AppDataSource.getRepository(Vote).save({...createVoteRequest,association: userFound?.association, assemblee: assembleeFound})
 
             if(createVoteRequest.voteIdParent !== undefined) {
                 const voteParentFound = await AppDataSource.getRepository(Vote).findOneBy({id: createVoteRequest.voteIdParent, association: userFound?.association})
@@ -1495,7 +1502,7 @@ export const initRoutes = (app: express.Express) => {
         }
         
         try {
-            const createdReponse = await AppDataSource.getRepository(Reponse).save({...createReponseRequest,sondage: sondageFound})
+            const createdReponse = await AppDataSource.getRepository(Reponse).save({...createReponseRequest,sondage: sondageFound, voters: []})
             
             if(createReponseRequest.applicantId) {
                 const applicants: User[] = []
@@ -1736,7 +1743,7 @@ export const initRoutes = (app: express.Express) => {
         }
         
         try {
-            const createdReponse = await AppDataSource.getRepository(Reponse).save({...createReponseRequest,vote: voteFound})
+            const createdReponse = await AppDataSource.getRepository(Reponse).save({...createReponseRequest,vote: voteFound, voters: []})
             
             if(createReponseRequest.applicantId) {
                 const applicants: User[] = []
@@ -2618,7 +2625,7 @@ export const initRoutes = (app: express.Express) => {
  *       '500':
  *         description: Erreur interne du serveur.
  */
-    app.get("/mine/transaction", authMiddleware, async (req: Request, res: Response) => {
+    app.get("/association/mine/transaction", authMiddleware, async (req: Request, res: Response) => {
         const validation = getTransactionsValidation.validate(req.query)
 
         if(validation.error) {
@@ -2642,7 +2649,7 @@ export const initRoutes = (app: express.Express) => {
 
         try {
             const transactionUseCase = new TransactionUseCase(AppDataSource)
-            const transactions = await transactionUseCase.getListTransactions({ ...getTransactionRequest, page, limit }, userFound.id)
+            const transactions = await transactionUseCase.getListTransactions({ ...getTransactionRequest, page, limit, assoId: userFound.association.id })
             res.status(200).send(transactions)
         }catch(error) {
             console.log(error)
@@ -2666,6 +2673,8 @@ export const initRoutes = (app: express.Express) => {
             return
         }
 
+        const order = await createOrder(createDonRequest.montant)
+
         try {
             const createdDon = await AppDataSource.getRepository(CompteTransaction).save({
                 ...createDonRequest,
@@ -2674,7 +2683,7 @@ export const initRoutes = (app: express.Express) => {
                 user: userFound
             })
 
-            res.status(200).send(createdDon)
+            res.status(200).send(order)
         } catch (error) {
             console.log(error)
             res.status(500).send({ error: "Internal error" })

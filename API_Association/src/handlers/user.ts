@@ -256,6 +256,7 @@ export const UserHandler = (app: express.Express) => {
         const userFound = await getConnectedUser(userId, AppDataSource)
         if(userFound) {
             res.status(200).send({
+                id: userFound.id,
                 email: userFound.email, 
                 firstname: userFound.firstName,
                 lastname: userFound.lastName,

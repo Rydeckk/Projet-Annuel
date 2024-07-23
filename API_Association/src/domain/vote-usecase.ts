@@ -26,7 +26,7 @@ export class VoteUseCase {
 
     async getVote(id: number, asso?: Association): Promise <Vote | null> {
         const repoVote = this.db.getRepository(Vote)
-        const voteFound = await repoVote.findOne({where: {id: id,association: asso}, relations: ["association","parentVote","assemblee"]})
+        const voteFound = await repoVote.findOne({where: {id: id,association: asso}, relations: ["association","parentVote","assemblee", "childVote"]})
         
         if(voteFound === null) return null
 
@@ -35,10 +35,11 @@ export class VoteUseCase {
 
     async getListVote(voteFilter: ListVoteFilter): Promise <{ Votes: Vote[]}> {
         const query = this.db.createQueryBuilder(Vote, 'vote')
-        query.innerJoin("vote.association","asso")
+        query.innerJoinAndSelect("vote.association","asso")
         query.leftJoinAndSelect("vote.parentVote","pVote")
         query.leftJoinAndSelect("vote.assemblee","assemblee")
         query.leftJoinAndSelect("vote.reponses", "res")
+        query.leftJoinAndSelect("vote.childVote", "child")
         query.skip((voteFilter.page - 1) * voteFilter.limit)
         query.take(voteFilter.limit)
 
@@ -70,7 +71,7 @@ export class VoteUseCase {
 
     async updateVote(id: number, updateVote: UpdateVoteParams, asso?: Association): Promise <Vote | null> {
         const repoVote = this.db.getRepository(Vote)
-        const voteFound = await repoVote.findOne({where: {id: id, association: asso}, relations: ["parentVote","assemblee"]})
+        const voteFound = await repoVote.findOne({where: {id: id, association: asso}, relations: ["parentVote","assemblee","childVote"]})
         if(voteFound === null) return null
 
         if(updateVote.name!== undefined) {
