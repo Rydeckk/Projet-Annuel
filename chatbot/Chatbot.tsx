@@ -1,5 +1,5 @@
 import React from 'react';
-import { Widget } from 'rasa-webchat';
+import Widget  from 'rasa-webchat';
 
 function Chatbot() {
   return (
