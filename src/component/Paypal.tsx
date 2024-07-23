@@ -30,9 +30,10 @@ export const Paypal = () => {
 
     const createOrder: PayPalButtonsComponentProps["createOrder"] = async () => {
         try {
-            const response = await fetch("/my-server/create-paypal-order", {
+            const response = await fetch("http://vps-1d054ff8.vps.ovh.net:3000/association/mine/donate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({montant: 120})
             });
 
           const orderData: OrderData = await response.json();
