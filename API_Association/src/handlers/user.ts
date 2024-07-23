@@ -258,8 +258,8 @@ export const UserHandler = (app: express.Express) => {
             res.status(200).send({
                 id: userFound.id,
                 email: userFound.email, 
-                firstname: userFound.firstName,
-                lastname: userFound.lastName,
+                firstName: userFound.firstName,
+                lastName: userFound.lastName,
                 address: userFound.address,
                 role: userFound.role
                 })
