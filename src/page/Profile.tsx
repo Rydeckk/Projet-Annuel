@@ -1,0 +1,32 @@
+import React, { useState } from "react";
+import traduction from "../../traductions/traduction.json"
+import { MenuLeft } from "../component/menu_left";
+import { Routes, Route } from "react-router-dom";
+import { useAssoContext } from "../main";
+import { Info } from "./Info";
+import { MyTransactions } from "./MyTransactions";
+import { Ged } from "./Ged";
+
+export function Profile() {
+    const asso = useAssoContext()
+    
+    return (
+        <div className="div_profile">
+            <MenuLeft></MenuLeft>
+            <div className="div_inner_profile">
+                <div>
+                    <h1 className="title_section">{traduction.welcomeMySpace}</h1>
+                </div>
+                <div className="div_profile_content">
+                    <Routes>
+                        <Route path={""} />
+                        <Route path={"myinfo"} element={<Info />} />
+                        <Route path={"mytransaction"} element={<MyTransactions />}/>
+                        <Route path={"myged"} element={<Ged />}/>
+                    </Routes>
+                </div>
+            </div>
+            
+        </div>
+    )
+}

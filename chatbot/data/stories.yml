@@ -1,0 +1,27 @@
+version: "3.1"
+
+stories:
+
+- story: greet path
+  steps:
+  - intent: greet
+  - action: utter_greet
+  
+
+- story: goodbye path
+  steps:
+  - intent: goodbye
+  - action: utter_goodbye
+  
+
+- story: inform path
+  steps:
+  - intent: inform
+  - action: utter_inform
+  - action: utter_did_that_help
+
+- story: ask_schedule path
+  steps:
+  - intent: ask_schedule
+  - action: utter_ask_schedule
+  - action: utter_did_that_help
