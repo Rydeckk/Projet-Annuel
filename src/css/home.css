@@ -1,0 +1,36 @@
+.grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    flex: 1 0 21%; /* Adjust the width as needed */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: scale(1.05);
+    color: #002f86
+}
+
+.card_content {
+    text-decoration: none;
+    color: #002f86;
+}
+
+.link {
+    text-decoration: none;
+    color: #3c00ffb4;
+}
+
+.link_active {
+    font-weight: bold;
+    color: #002f86;
+}
