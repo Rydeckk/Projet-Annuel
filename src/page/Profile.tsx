@@ -5,7 +5,7 @@ import { Routes, Route } from "react-router-dom";
 import { useAssoContext } from "../main";
 import { Info } from "./Info";
 import { MemberShip } from "./MemberShip";
-import { Transaction } from "./Transaction";
+import { MyTransactions } from "./MyTransactions";
 import { MyEvents } from "./MyEvents";
 import { Ged } from "./Ged";
 
@@ -24,7 +24,7 @@ export function Profile() {
                         <Route path={""} />
                         <Route path={"myinfo"} element={<Info />} />
                         <Route path={"mymembership"} element={<MemberShip />}/>
-                        <Route path={"mytransaction"} element={<Transaction />}/>
+                        <Route path={"mytransaction"} element={<MyTransactions />}/>
                         <Route path={"myevents"} element={<MyEvents />}/>
                         <Route path={"myged"} element={<Ged />}/>
                     </Routes>

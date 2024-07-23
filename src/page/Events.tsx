@@ -2,15 +2,33 @@ import React, { useEffect, useState } from "react";
 import traduction from "../../traductions/traduction.json"
 import { Event } from "../component/Event";
 import { useAssoContext, useUserContext } from "../main";
-import { createEvent, deleteEvent, Evenement, getListEvent, getListEventPublic, updateEvent } from "../request/requestEvent";
+import { createEvent, deleteEvent, Evenement, getListEvent, getListEventPublic, participateEvent, updateEvent } from "../request/requestEvent";
 import { PopupEvent } from "../component/popupEvent";
-
+import { getState } from "../utils/utils-function";
 
 export function Events() {
     const [eventList, setEventList] = useState<Array<Evenement>>([])
-    const asso = useAssoContext()
     const [isOpen, setIsOpen] = useState(false);
+    const asso = useAssoContext()
     const user = useUserContext()
+
+    useEffect(() => {
+    
+        const getEvents = async () => {
+            try {
+                if(asso.asso !== null) {
+                    const response = await getListEvent(asso.asso.domainName)
+                    setEventList(response.event)
+                }
+            } catch (error) {
+                if(asso.asso !== null) {
+                    const response = await getListEventPublic(asso.asso.domainName)
+                    setEventList(response.event)
+                }
+            }
+        }
+        getEvents()
+    }, [])
 
     const togglePopup = () => {
         setIsOpen(!isOpen);
@@ -46,23 +64,12 @@ export function Events() {
         
     }
 
-    useEffect(() => {
-    
-        const getEvents = async () => {
-            try {
-                if(asso.asso !== null) {
-                    const response = await getListEvent(asso.asso.domainName)
-                    setEventList(response.event)
-                }
-            } catch (error) {
-                if(asso.asso !== null) {
-                    const response = await getListEventPublic(asso.asso.domainName)
-                    setEventList(response.event)
-                }
-            }
+    const handleParticipate = async (eventAssist: Evenement) => {
+        if(asso.asso) {
+            const eventAssisted = await participateEvent(eventAssist, asso.asso.domainName)
+            setEventList(eventList.map((event) => event.id === eventAssisted.id ? eventAssisted : event))
         }
-        getEvents()
-    }, [])
+    }
     
     return (
         <div>
@@ -74,7 +81,8 @@ export function Events() {
                         key={event.id} 
                         event={event} 
                         onSave={(event) => onUpdate(event)} 
-                        onDelete={() => onDelete(event)}></Event>
+                        onDelete={() => onDelete(event)}
+                        onParticipate={(event) => handleParticipate(event)}></Event>
                     ))}
                 </div>
                 {user.user?.role.isAdmin && (<div style={{paddingTop: "35px"}}>

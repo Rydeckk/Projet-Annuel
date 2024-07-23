@@ -10,14 +10,16 @@ import { Applicant } from "./Applicant";
 type ResponseProps = {
     vote?: VoteType,
     sondage?: SondageType,
-    onSave: (response: ReponseType) => void
+    response?: ReponseType,
+    onSave: (response: ReponseType) => void,
+    onUpdate: (responseUpdated: ReponseType) => void
 }
 
 function sortAlphabetically(users: UserInfoWithId[]): UserInfoWithId[] {
     return users.sort((a, b) => a.firstName.localeCompare(b.firstName))
 }
 
-export function ResponseForm({vote, sondage, onSave}: ResponseProps) {
+export function ResponseForm({vote, sondage, onSave, response, onUpdate}: ResponseProps) {
     const [listUser, setListUser] = useState<Array<UserInfoWithId>>([])
     const [listUserSelect, setListUserSelect] = useState<Array<UserInfoWithId>>([])
     const [selectedUsers, setSelectedUsers] = useState<Array<UserInfoWithId>>([])
@@ -46,9 +48,22 @@ export function ResponseForm({vote, sondage, onSave}: ResponseProps) {
             || user.lastName.toLowerCase().includes(searchName.toLowerCase())))))
     }, [searchName])
 
+    useEffect(() => {
+        if(response) {
+            setName(response.name)
+            setSelectedUsers(response.applicants)
+            setListUserSelect(listUser.filter(user => !response.applicants.some(applicant => applicant.id === user.id)))
+        }
+        
+    }, [listUser, response])
+
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        onSave({nbVote: 0, id: 0, name: name, vote: vote, sondage: sondage, applicants: selectedUsers, voters: []})
+        if(response) {
+            onUpdate({nbVote: response.nbVote, id: response.id, name: name, vote: vote, sondage: sondage, applicants: selectedUsers, voters: response.voters})
+        } else {
+            onSave({nbVote: 0, id: 0, name: name, vote: vote, sondage: sondage, applicants: selectedUsers, voters: []})
+        }
     }
 
     const handleSelect = (user: UserInfoWithId) => {
@@ -77,7 +92,7 @@ export function ResponseForm({vote, sondage, onSave}: ResponseProps) {
         <form onSubmit={handleSubmit} className="div_form_response">
             <div className="div_form_response_title">
                 <label>{traduction.response_name} : </label>
-                <input onChange={(e) => (setName(e.target.value))} className="input_form_response" required placeholder={traduction.response_name}></input>
+                <input value={name} onChange={(e) => (setName(e.target.value))} className="input_form_response" required placeholder={traduction.response_name}></input>
             </div>
             <div className="div_form_response_applicant">
                 <label>{traduction.response_applicant} : </label>
@@ -96,7 +111,7 @@ export function ResponseForm({vote, sondage, onSave}: ResponseProps) {
                 </div>
             </div>
             <div className="div_button_submit">
-                <button className="button_class" type="submit">{traduction.response_create}</button>
+                <button className="button_class" type="submit">{response ? traduction.response_update : traduction.response_create}</button>
             </div>
         </form>
     )

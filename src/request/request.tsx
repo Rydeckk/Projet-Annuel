@@ -3,7 +3,9 @@ export type Association = {
     id: number,
     description: string,
     domainName: string,
-    name: string
+    name: string,
+    theme: ThemeType,
+    ged: GED
   }
 
 export type UserConnexion = {
@@ -17,6 +19,18 @@ export type UserInscription = {
     email: string,
     password: string,
     address: string
+}
+
+export type ThemeType = {
+    id: number,
+    name: string,
+    firstColor: string,
+    colorText: string,
+    backgroundColor: string
+}
+
+export type GED = {
+  id: number
 }
   
   export async function getAssoByDomainName(domainName: string): Promise<Association | null> {

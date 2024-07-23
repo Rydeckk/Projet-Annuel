@@ -2,7 +2,7 @@ import React, { FormEvent, useEffect, useState } from "react"
 import traduction from '../../traductions/traduction.json'
 import { VoteType } from "../request/requestVote"
 import { useAssoContext, useUserContext } from "../main"
-import { createResponseVote, getListResponseVote, ReponseType, submitVote } from "../request/requestReponse"
+import { createResponseVote, deleteResponseVote, getListResponseVote, ReponseType, submitVote, updateResponseVote } from "../request/requestReponse"
 import { formatDateToLocalString } from "../utils/utils-function"
 import { Response } from "./Response"
 import { ResponseForm } from "./ResponseForm"
@@ -19,6 +19,7 @@ export function Responses({vote, stateVote, onClickReturn}: ResponsesProps) {
     const [isResponseForm, setIsResponseForm] = useState<boolean>(false)
     const [responseSelected, setReponseSelected] = useState<ReponseType>()
     const [isEnabledVote, setIsEnabledVote] = useState<boolean>(true)
+    const [responseUpdate, setResponseUpdate] = useState<ReponseType>()
     const asso = useAssoContext()
     const user = useUserContext()
 
@@ -33,9 +34,10 @@ export function Responses({vote, stateVote, onClickReturn}: ResponsesProps) {
     }, [asso.asso])
 
     useEffect(() => {
-        if(listResponse.map((response) => response.voters.find((voter) => voter.firstName.concat(voter.lastName) === user.user?.firstname.concat(user.user.lastname)))) {
-            setIsEnabledVote(false)
-        }
+        // Faire test avec ID 
+        // if(listResponse.map((response) => {response.voters.find((voter) => voter.firstName.concat(voter.lastName) === user.user?.firstname.concat(user.user.lastname))})) {
+        //     setIsEnabledSubmit(false)
+        // }
     }, [user.user])
 
     const handleSave = async (response: ReponseType) => {
@@ -64,6 +66,29 @@ export function Responses({vote, stateVote, onClickReturn}: ResponsesProps) {
         if(responseSelected && asso.asso) {
             const submitResponse = await submitVote(vote.id, responseSelected.id, asso.asso.domainName)
             setListResponse(listResponse.map((response) => (response.id === submitResponse.id ? submitResponse : response)))
+        }
+    }
+
+    const handleDelete = async (response: ReponseType) => {
+        if(asso.asso !== null) {
+            await deleteResponseVote(vote.id, response.id, asso.asso.domainName)
+            setListResponse(listResponse.filter((reponse) => reponse.id !== response.id))
+        }
+    }
+
+    const handleUpdate = (response: ReponseType) => {
+        if(asso.asso !== null) {
+            setResponseUpdate(response)
+            toggleResponseForm()
+        }
+    }
+
+    const handleUpdateResponse = async (updatedResponse: ReponseType) => {
+        if(asso.asso !== null) {
+            await updateResponseVote(vote.id, updatedResponse, asso.asso.domainName)
+            setListResponse(listResponse.map((response) => (response.id === updatedResponse.id ? updatedResponse : response)))
+            toggleResponseForm()
+            setResponseUpdate(undefined)
         }
     }
     
@@ -97,9 +122,9 @@ export function Responses({vote, stateVote, onClickReturn}: ResponsesProps) {
                         <img src="/icone/add.png" style={{height:"30px", width: "30px"}} className="clickable-image" onClick={toggleResponseForm}></img>
                     </div>)}
                     {listResponse.map((response) => (
-                        <Response key={response.id} response={response} stateVote={stateVote} onCheck={(response) => handleCheck(response)} isEnabled={isEnabledVote}></Response>
+                        <Response key={response.id} response={response} stateVote={stateVote} onCheck={(response) => handleCheck(response)} isEnabled={isEnabledVote} onDelete={(response) => handleDelete(response)} onUpdate={(response) => handleUpdate(response)}></Response>
                     ))}
-                    {isEnabledVote && (<div className="div_button_submit">
+                    {isEnabledVote && stateVote === "pending" && (<div className="div_button_submit">
                         <button className="button_class" type="submit">{traduction.vote}</button>
                     </div>)}
                 </form>)}
@@ -107,7 +132,7 @@ export function Responses({vote, stateVote, onClickReturn}: ResponsesProps) {
                     <Resultat responses={listResponse}></Resultat>
                 )}
                 {isResponseForm && (<div>
-                    <ResponseForm vote={vote} onSave={(response) => handleSave(response)}></ResponseForm>
+                    <ResponseForm vote={vote} onSave={(response) => handleSave(response)} response={responseUpdate} onUpdate={(responseUpdated) => handleUpdateResponse(responseUpdated)}></ResponseForm>
                 </div>)}
             </div>
             <div className="div_return" onClick={onClickReturn}>

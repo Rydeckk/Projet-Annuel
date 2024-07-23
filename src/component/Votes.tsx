@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import traduction from "../../traductions/traduction.json"
 import { VoteType } from "../request/requestVote";
 import { useUserContext } from "../main";
-import { formatDateToLocalString } from "../utils/utils-function";
+import { formatDateToLocalString, getState } from "../utils/utils-function";
 import { PopupVote } from "./popupVote";
 
 type VotesProps = {
@@ -12,20 +12,6 @@ type VotesProps = {
     onClickVote: (vote: VoteType) => void
 }
 
-export function getStateVote(beginDate: Date, endDate: Date): "not_begin" | "pending" | "finish" {
-    const today = new Date()
-    const dateBegin = new Date(beginDate)
-    const dateEnd = new Date(endDate)
-
-    if(dateBegin > today) {
-        return "not_begin"
-    } else if(dateBegin <= today && dateEnd > today) {
-        return "pending"
-    } else {
-        return "finish"
-    }
-}
-
 export function Votes({vote, onDelete, onSave, onClickVote}: VotesProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [state, setState] = useState<"not_begin" | "pending" | "finish">("not_begin")
@@ -33,7 +19,7 @@ export function Votes({vote, onDelete, onSave, onClickVote}: VotesProps) {
     const user = useUserContext()
 
     useEffect(() => {
-        const actualStateVote = getStateVote(vote.beginDate, vote.endDate)
+        const actualStateVote = getState(vote.beginDate, vote.endDate)
         setState(actualStateVote)
     }, [])
 
@@ -42,7 +28,7 @@ export function Votes({vote, onDelete, onSave, onClickVote}: VotesProps) {
     useEffect(() => {
         const intervalId = setInterval(() => {
             setTime(new Date())
-            setState(getStateVote(vote.beginDate, vote.endDate))
+            setState(getState(vote.beginDate, vote.endDate))
         }, 60000) //s'éxécute toutes les minutes
 
         return () => clearInterval(intervalId);

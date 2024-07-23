@@ -5,7 +5,8 @@ import { formatDateToLocalString } from "../utils/utils-function";
 export type FichierProps = {
     handleClickFolder: (folder: Fichier) => void,
     handleClickFile: (f: Fichier) => void,
-    file: Fichier
+    file: Fichier,
+    onContextMenuClick: (file: Fichier, menuPosition: { top: number; left: number}) => void
 }
 
 const listFormatImage = ["jpeg", "jpg", "png", "gif", "tif", "psd", "eps", "ai", "indd", "svg"]
@@ -39,8 +40,9 @@ function setIcon(type: string, name: string): string {
     }
 }
 
-export function FichierElement({file, handleClickFolder, handleClickFile}: FichierProps) {
-
+export function FichierElement({file, handleClickFolder, handleClickFile, onContextMenuClick}: FichierProps) {
+    const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
+    
     const handleDownload = () => {
         handleClickFile(file)
     }
@@ -49,21 +51,26 @@ export function FichierElement({file, handleClickFolder, handleClickFile}: Fichi
         handleClickFolder(file)
     }
 
+    const handleItemContextMenu = (file: Fichier, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        event.preventDefault();
+        setMenuPosition({ top: event.clientY, left: event.clientX });
+        if(menuPosition) {
+            onContextMenuClick(file, menuPosition)
+        }
+        
+    }
+
     return (
-        <div className="div_file_ged clickable-image" onClick={file.type === "folder" ? handleChangeFolder : handleDownload}>
+        <div className="div_file_ged clickable-image" onClick={file.type === "folder" ? handleChangeFolder : handleDownload} onContextMenu={(e) => {e.stopPropagation(); handleItemContextMenu(file, e);}}>
             <div className="div_row_content">
                 <div className="width_column">
                     <img src={setIcon(file.type, file.name)} className="taille_icone50"></img>
                 </div>
                 <label className="width_column">{file.name}</label>
                 <label className="width_column">{formatDateToLocalString(file.addedDate)}</label>
-                {file.type === "file" ? (
-                    <div className="width_column">
-                        <img src="/icone/download.png" className="clickable-image taille_icone"></img>
-                    </div>
-                ) : (
-                    <span className="width_column"></span>
-                )}
+                <div className="width_column">
+                    {file.type === "file" && (<img src="/icone/download.png" className="clickable-image taille_icone"></img>)}
+                </div>
             </div>
         </div>
     )

@@ -16,7 +16,9 @@ export const AssoContext = createContext<AssoContextType>({
         id: 0,
         description: "",
         domainName: "",
-        name: ""
+        name: "",
+        theme: {id: 0, name: "", firstColor: "", colorText: "", backgroundColor: ""},
+        ged: {id: 0}
     }
 })
 

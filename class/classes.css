@@ -23,6 +23,7 @@ body {
     border-color: #333333;
     border: solid;
     border-width: thin;
+    margin: 0px 10px;
 }
 
 .button_class:hover {
@@ -32,6 +33,7 @@ body {
 .div_padding10_horizontal {
     display: flex;
     padding: 0px 10px;
+    color: rgba(9, 212, 100, 0.726);
 }
 
 .div_padding10 {
@@ -203,8 +205,6 @@ body {
     padding: 15px;
     min-width: 200px;
     min-height: 200px;
-    max-width: 450px;
-    max-height: 450px;
     background-color: #c9c9c9;
     border: 1px solid #ccc;
     border-radius: 10px;
@@ -661,3 +661,41 @@ color: #333;
     max-height: 600px;
     flex: 1;
 }
+
+.button_close {
+    font-size: 20px;
+    color: lightgray;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.button_close:hover {
+    color: rgba(255, 71, 71, 0.61);
+}
+
+.div_column_response {
+    border-top: solid 1px lightgray;
+    margin: 15px 0px;
+    display: flex;
+    flex-direction: column;
+}
+
+.div_title_response {
+    margin: 10px 0px;
+}
+
+.select_class {
+    border-radius: 15px;
+    border: solid 1px;
+    padding: 5px;
+}
+
+.context-menu {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+  }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAssoContext } from "../main";
-import { CreateFichier, createFile, downloadFile, Fichier, getFile, getListFile, upload } from "../request/requestFile";
+import { CreateFichier, createFile, deleteFile, downloadFile, Fichier, getFile, getListFile, upload } from "../request/requestFile";
 import { FichierElement } from "../component/Fichier";
 import traduction from "../../traductions/traduction.json"
 import { PopupFichier } from "../component/popupFichier";
@@ -22,6 +22,9 @@ export function Ged() {
     const [parentFolder, setParentFolder] = useState<Fichier | undefined>()
     const [isOpenPopupFichier, setIsOpenPopupFichier] = useState(false);
     const [isOpenPopupFichierUpload, setIsOpenPopupFichierUpload] = useState(false);
+    const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
+    const [fileDelete, setFileDelete] = useState<Fichier | null>(null)
+    const [isPopupDeleteHidden, setIsPopupDeleteHidden] = useState<boolean>(true)
 
     const togglePopupFichier = () => {
         setIsOpenPopupFichier(!isOpenPopupFichier);
@@ -45,6 +48,15 @@ export function Ged() {
         getFiles(parentFolder?.id)
     }, [parentFolder, asso.asso])
 
+    useEffect(() => {
+        if(menuPosition) {
+            setIsPopupDeleteHidden(false)
+        } else {
+            setIsPopupDeleteHidden(true)
+        }
+        
+    }, [menuPosition, fileDelete])
+
     const handleClickFile = async (file: Fichier) => {
         if(asso.asso !== null) {
             await downloadFile(asso.asso.domainName, file)
@@ -53,6 +65,8 @@ export function Ged() {
 
     const handleClickFolder = async (folder: Fichier) => {
         setParentFolder(folder)
+        setMenuPosition(null)
+        setFileDelete(null)
     }
 
     const handleClickPrevFolder = async () => {
@@ -87,14 +101,28 @@ export function Ged() {
         setIsOpenPopupFichierUpload(false)
     }
 
+    const handleContextMenu = (file: Fichier, menuPosition: { top: number; left: number }) => {
+        setMenuPosition(menuPosition)
+        setFileDelete(file)
+    }
+
+    const handleDelete = async () => {
+        if(asso.asso && fileDelete) {
+            await deleteFile(fileDelete.id, asso.asso.domainName)
+            setFileList(fileList.filter((file) => file.id !== fileDelete.id))
+            setMenuPosition(null)
+            setFileDelete(null)
+        }
+    }
+
     return (
         <div className="div_ged">
             <div className="div_ged_header">
-                <div style={{display: "flex", flexDirection: "column", marginRight:"15px", justifyContent: "center"}}>
+                <div style={{display: "flex", flexDirection: "column", marginRight:"15px", justifyContent: "center", alignItems: "center"}}>
                     <img src="/icone/add.png" className="clickable-image taille_icone50" onClick={togglePopupFichier}></img>
                     <label>{traduction.add}</label>
                 </div>
-                <div style={{display: "flex", flexDirection: "column", marginRight:"15px", justifyContent: "center"}}>
+                <div style={{display: "flex", flexDirection: "column", marginRight:"15px", justifyContent: "center", alignItems: "center"}}>
                     <img src="/icone/fileImport.png"  className="clickable-image taille_icone50" onClick={togglePopupFichierUpload}></img>
                     <label>{traduction.upload}</label>
                 </div>
@@ -121,11 +149,19 @@ export function Ged() {
                         key={file.id} 
                         file={file} 
                         handleClickFolder={handleClickFolder}
-                        handleClickFile={handleClickFile}></FichierElement>
+                        handleClickFile={handleClickFile}
+                        onContextMenuClick={(file, menuPosition) => handleContextMenu(file, menuPosition)}></FichierElement>
                     ))
                 }
             </div>
 
+            {!isPopupDeleteHidden && menuPosition && (
+                <div
+                    className="context-menu"
+                    style={{ top: menuPosition.top, left: menuPosition.left  }}>
+                    <button className="button_close" onClick={() => handleDelete()} onBlur={() => {setMenuPosition(null)}}>Supprimer X</button>
+                </div>
+            )}
             <PopupFichier isOpen={isOpenPopupFichier} handleClose={togglePopupFichier} onSave={handleSave} parentFolder={parentFolder}></PopupFichier>
             <PopupFichierUpload isOpen={isOpenPopupFichierUpload} handleClose={togglePopupFichierUpload} onSave={handleSaveUpload}></PopupFichierUpload>
         </div>

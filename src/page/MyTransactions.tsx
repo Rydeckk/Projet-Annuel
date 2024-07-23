@@ -1,7 +1,7 @@
 import React from "react";
 
 
-export function Transaction () {
+export function MyTransactions () {
     return (
         <div>
             

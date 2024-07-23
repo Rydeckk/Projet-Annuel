@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import traduction from "../../traductions/traduction.json"
-import { logout } from "../request/request";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useAssoContext } from "../main";
 
 export function MenuLeft() {
@@ -27,9 +26,6 @@ export function MenuLeft() {
                 </div>
                 <div className="div_padding10">
                     <NavLink to={"myged"} className={({ isActive }) => (isActive ? "link link_active" : "link")} end>{traduction.myged}</NavLink>
-                </div>
-                <div className="div_padding10 div_paddingTop80">
-                    <NavLink to={"/" + asso.asso?.domainName + "/master"} className="link">{traduction.master}</NavLink>
                 </div>
             </div>
         </nav>

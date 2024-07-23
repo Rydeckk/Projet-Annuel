@@ -70,6 +70,10 @@ export function Menu_top() {
                             <img src="/icone/user.png" className="taille_icone30" alt={traduction.my_profile}></img>
                             <span className="tooltiptext">{traduction.my_profile}</span>
                         </NavLink>
+                        <NavLink style={{padding: "0px 20px"}} id="lMyProfile" to={"/"+asso.asso?.domainName+"/master"} className={"tooltip"} end>
+                            <img src="/icone/gearWhite.png" className="taille_icone30" alt={traduction.my_profile}></img>
+                            <span className="tooltiptext">{traduction.settings}</span>
+                        </NavLink>
                         <div className="tooltip">
                             <img src="/icone/logoutWhite.png" onClick={handleLogout} className="clickable-image taille_icone30" alt={traduction.logout}></img>
                             <span className="tooltiptext">{traduction.logout}</span>

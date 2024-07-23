@@ -88,3 +88,17 @@ export async function createEvent(event: EvenementWithoutId, domainName: string)
 
     return data
 }
+
+export async function participateEvent(event: Evenement, domainName: string) {
+  const url = new URL("http://vps-1d054ff8.vps.ovh.net:3000/association/mine/event/"+event.id+"/participate")
+  const headers = new Headers({'Content-Type': 'application/json', 'Authorization': 'Bearer '+ localStorage.getItem(domainName+"-token")})
+    const response = await fetch(url , {
+    
+    method: 'POST',
+    headers: headers
+    })
+
+    const data = await response.json()
+
+    return data
+}

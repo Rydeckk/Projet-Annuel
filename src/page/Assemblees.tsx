@@ -6,7 +6,7 @@ import traduction from "../../traductions/traduction.json"
 import { AssembleeDetail } from "../component/AssembleeDetail";
 import { VoteType } from "../request/requestVote";
 import { Responses } from "../component/Responses";
-import { getStateVote } from "../component/Votes";
+import { getState } from "../utils/utils-function";
 
 export function Assemblees() {
     const [listAssemblee, setListAssemblee] = useState<Array<AssembleeType>>([])
@@ -51,7 +51,7 @@ export function Assemblees() {
 
     const handleClickVote = (vote: VoteType) => {
         setVoteDetail(vote)
-        setStateVote(getStateVote(vote.beginDate, vote.endDate))
+        setStateVote(getState(vote.beginDate, vote.endDate))
         toggleIsDetailAssemblee()
         toggleIsDetailVote()
     }

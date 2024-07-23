@@ -104,7 +104,6 @@ export async function getFile(domainName: string, file: Fichier): Promise<Fichie
 }
 
 export async function createFile(domainName: string, file: CreateFichier): Promise<Fichier> {
-    console.log(file)
     const headers = new Headers({'Content-Type': 'application/json', 'Authorization': 'Bearer '+ localStorage.getItem(domainName+"-token")})
     const response = await fetch("http://vps-1d054ff8.vps.ovh.net:3000/association/mine/ged/mine/file", {
     
@@ -116,4 +115,15 @@ export async function createFile(domainName: string, file: CreateFichier): Promi
     const data = await response.json()
 
     return data
+}
+
+export async function deleteFile(fileId: number, domainName: string) {
+    const headers = new Headers({'Content-Type': 'application/json', 'Authorization': 'Bearer '+ localStorage.getItem(domainName+"-token")})
+    const response = await fetch("http://vps-1d054ff8.vps.ovh.net:3000/association/mine/ged/mine/file/"+fileId, {
+    
+    method: 'DELETE',
+    headers: headers
+    })
+
+    const data = await response.json()
 }
