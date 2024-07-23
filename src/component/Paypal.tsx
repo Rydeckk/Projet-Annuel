@@ -1,23 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import {
-    PayPalButtons,
-    PayPalButtonsComponentProps,
-    PayPalScriptProvider,
-    ReactPayPalScriptOptions,
-} from "@paypal/react-paypal-js";
+import React, { useCallback, useEffect, useState } from 'react';
+import { PayPalButtons, PayPalButtonsComponentProps, PayPalScriptProvider, ReactPayPalScriptOptions } from "@paypal/react-paypal-js";
+import { useAssoContext } from '../main';
+import { donate } from '../request/requestDon';
 
-interface OrderData {
-    id: string;
-    details?: Array<{
-      issue: string;
-      description: string;
-    }>;
-    debug_id?: string;
+type PaypalProps = {
+    amount: number
 }
 
-export const Paypal = () => {
+export function Paypal ({amount}: PaypalProps) {
+    const asso = useAssoContext()
+    
     const initialOptions: ReactPayPalScriptOptions = {
         clientId: "AY7ysDu71TWaDqxTQr-OjxKah4HBJgSdlmygglkTXNM0B70NYfzp2IQI-nIUhJ96LZsu_XAgTyTwsjfo",
+        currency: "EUR"
     }
 
     const styles: PayPalButtonsComponentProps["style"] = {
@@ -25,37 +20,30 @@ export const Paypal = () => {
         layout: "vertical",
         color: "gold",
         label: "paypal",
-        tagline: false
-    };
+        tagline: false,
+        
+    };   
 
-    const createOrder: PayPalButtonsComponentProps["createOrder"] = async () => {
-        try {
-            const response = await fetch("http://vps-1d054ff8.vps.ovh.net:3000/association/mine/donate", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({montant: 120})
-            });
-
-          const orderData: OrderData = await response.json();
-
-            if (!orderData.id) {
-                const errorDetail = orderData.details && orderData.details.length > 0 ? orderData.details[0] : null
-                const errorMessage = errorDetail ? `${errorDetail.issue} ${errorDetail.description} (${orderData.debug_id})` : "Unexpected error occurred, please try again.";
-
-                throw new Error(errorMessage);
-            }
-
-            return orderData.id;
-
-        } catch (error) {
-            console.error(error);
-            throw error;
+    const createOrder: PayPalButtonsComponentProps["createOrder"] = async (data, actions) => {
+        if(asso.asso) {
+            const order = await donate(asso.asso?.domainName, amount)
+            return order
         }
+        return ""
     }
 
-  return (
-    <PayPalScriptProvider options={initialOptions}>
-        <PayPalButtons style={styles} createOrder={createOrder}/>
-    </PayPalScriptProvider>
-  );
+    const onApprove: PayPalButtonsComponentProps["onApprove"] = async (data, actions) => {
+        return actions.order?.capture().then((details) => {
+            alert(`Transaction complétée`);
+        }).catch(error => {
+            console.error('Error capturing the order:', error);
+        });
+    };
+
+
+    return (
+        <PayPalScriptProvider options={initialOptions}>
+            <PayPalButtons style={styles} createOrder={createOrder} onApprove={onApprove}/>
+        </PayPalScriptProvider>
+    );
 };
