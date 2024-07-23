@@ -1,10 +1,10 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
-import { getUser, UserInfo } from '../request/requestUser';
+import { getUser, UserInfo, UserInfoWithId } from '../request/requestUser';
 import { useAssoContext } from '../main';
 
 interface UserContextType {
-    user: UserInfo | null;
-    setUser: (user: UserInfo | null) => void;
+    user: UserInfoWithId | null;
+    setUser: (user: UserInfoWithId | null) => void;
 }
 
 interface Props {
@@ -19,7 +19,7 @@ const defaultContext: UserContextType = {
 export const UserContext = createContext<UserContextType>(defaultContext);
 
 export function UserProvider({children}: Props) {
-    const [user, setUser] = useState<UserInfo | null>(null)
+    const [user, setUser] = useState<UserInfoWithId | null>(null)
     const asso = useAssoContext()
 
     useEffect(() => {

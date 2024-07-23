@@ -22,9 +22,6 @@ export function MenuLeft() {
                     <NavLink to={"mytransaction"} className={({ isActive }) => (isActive ? "link link_active" : "link")} end>{traduction.mytransactions}</NavLink>
                 </div>
                 <div className="div_padding10">
-                    <NavLink to={"myevents"} className={({ isActive }) => (isActive ? "link link_active" : "link")} end>{traduction.myevent}</NavLink>
-                </div>
-                <div className="div_padding10">
                     <NavLink to={"myged"} className={({ isActive }) => (isActive ? "link link_active" : "link")} end>{traduction.myged}</NavLink>
                 </div>
             </div>

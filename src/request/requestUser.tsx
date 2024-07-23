@@ -23,7 +23,7 @@ export type UserInfoWithId = {
     role: Role
 }
 
-export async function getUser(domainName: string): Promise<UserInfo | null> {
+export async function getUser(domainName: string): Promise<UserInfoWithId | null> {
     const url = new URL("http://vps-1d054ff8.vps.ovh.net:3000/auth/info")
     const headers = new Headers({'Content-Type': 'application/json', 'Authorization': 'Bearer '+ localStorage.getItem(domainName+"-token")})
 

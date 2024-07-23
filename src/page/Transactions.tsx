@@ -1,38 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import traduction from "../../traductions/traduction.json"
 import { useAssoContext } from '../main';
+import { getListTransaction, TransactionType } from '../request/requestTransaction';
+import { Transaction } from '../component/Transaction';
 
 export function Transactions () {
-    const [listTransaction, setListTransactions] = useState<Array<number>>([])
+    const [listTransaction, setListTransactions] = useState<Array<TransactionType>>([])
     const asso = useAssoContext()
     
+    useEffect(() => {
+        const getTransactions = async () => {
+            if(asso.asso) {
+                setListTransactions((await getListTransaction(asso.asso.domainName)).transactions)
+            }
+        }
+
+        getTransactions()
+    }, [asso.asso])
+
     return (
         <div className="div_ged">
-            {/* <div className="div_ged_content">
+            <div className="div_ged_content" style={{height: "100%"}}>
                 <div className="div_ged_header_list">
-                    <label className="width_column">{traduction.user_firstname}</label>
-                    <label className="width_column">{traduction.user_lastname}</label>
-                    <label className="width_column">{traduction.user_role}</label>
+                    <label className="width_column">{traduction.transaction_amount}</label>
+                    <label className="width_column">{traduction.transaction_type}</label>
+                    <label className="width_column">{traduction.transaction_ditAt}</label>
+                    <label className="width_column">{traduction.transaction_user}</label>
                 </div>
-                {listUsers.map((user) => (
-                    <UserRow key={user.id} user={user} onChange={(userUpdated) => handleChange(userUpdated)}></UserRow>
+                {listTransaction.map((transaction) => (
+                    <Transaction key={transaction.id} transaction={transaction}></Transaction>
                 ))}
                 
             </div>
-            {!isListUser && (<div className="div_ged_content">
-                <div className="div_ged_header_list">
-                    <label className="width_column">{traduction.role_name}</label>
-                    <label className="width_column">{traduction.role_isMember}</label>
-                    <label className="width_column">{traduction.role_isAdmin}</label>
-                    <label className="width_column">{traduction.role_option}</label>
-                </div>
-                {listRole.map((role) => (
-                    <RoleRow key={role.id} role={role} onUpdate={(roleUpdated) => handleUpdate(roleUpdated)} onDelete={(roleDelete) => handleDelete(roleDelete)}/>
-                ))}
-            </div>)}
-            <PopupRole isOpen={isOpen}
-                handleClose={togglePopup}
-                onSave={handleSave}/> */}
         </div>
     )
 }

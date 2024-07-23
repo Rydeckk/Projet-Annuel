@@ -2,7 +2,7 @@ import React from "react";
 import { NavLink } from 'react-router-dom';
 import traduction from "../../traductions/traduction.json"
 import "../css/home.css"
-import Chatbot from "../../chatbot/Chatbot"
+//import Chatbot from "../../chatbot/Chatbot"
 
 const links = [
     { id: 'lHome', path: "", description: "Accueil", translation: traduction.home },
@@ -31,7 +31,7 @@ export function Home() {
                     </div>
                 ))}
             </div>
-            <Chatbot/>    
+            {/* //<Chatbot/>     */}
         </div>
         
     )

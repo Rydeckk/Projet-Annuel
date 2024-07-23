@@ -114,5 +114,10 @@
     "cotisation_type": "Durée de la cotisation",
     "cotisation_form_amount": "Montant",
     "cotisation_form_type": "Type",
-    "event_assist": "Participer"
+    "event_assist": "Participer",
+    "transaction_amount": "Montant",
+    "transaction_type": "Type",
+    "transaction_ditAt": "Fait le",
+    "transaction_user": "Fait par"
+
 }
