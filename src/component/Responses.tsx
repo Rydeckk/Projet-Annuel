@@ -34,10 +34,9 @@ export function Responses({vote, stateVote, onClickReturn}: ResponsesProps) {
     }, [asso.asso])
 
     useEffect(() => {
-        // Faire test avec ID 
-        // if(listResponse.map((response) => {response.voters.find((voter) => voter.firstName.concat(voter.lastName) === user.user?.firstname.concat(user.user.lastname))})) {
-        //     setIsEnabledSubmit(false)
-        // }
+        if(listResponse.map((response) => {response.voters.find((voter) => voter.id === user.user?.id)})) {
+            setIsEnabledVote(false)
+        }
     }, [user.user])
 
     const handleSave = async (response: ReponseType) => {

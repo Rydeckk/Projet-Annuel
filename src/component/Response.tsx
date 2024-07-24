@@ -19,7 +19,7 @@ export function Response({response, stateVote, onCheck, isEnabled, onDelete, onU
     const user = useUserContext()
 
     useEffect(() => {
-        if(response.voters.find((voter) => (voter.firstName.concat(voter.lastName)) === user.user?.firstname.concat(user.user.lastname))) {
+        if(response.voters.find((voter) => voter.id === user.user?.id)) {
             setIsCheck(true)
         }
     }, [user.user])

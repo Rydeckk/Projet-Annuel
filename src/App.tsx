@@ -13,6 +13,7 @@ import { useAssoContext } from "./main";
 import { Profile } from "./page/Profile";
 import { Assemblees } from "./page/Assemblees";
 import { Master } from "./page/Master";
+import Chatbot from "../chatbot/Chatbot";
 
 export function App() {
   const [isMenuTopVisible, setIsMenuTopVisible] = useState(true)

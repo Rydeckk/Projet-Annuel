@@ -65,7 +65,7 @@ export function Menu_top() {
                     </div>)}
                     {isConnected && 
                     (<div className="div_align_item">
-                        <label className="label_hello">{traduction.hello} <br/> {userContext.user?.lastname} {userContext.user?.firstname}</label>
+                        <label className="label_hello">{traduction.hello} <br/> {userContext.user?.lastName} {userContext.user?.firstName}</label>
                         <NavLink style={{padding: "0px 20px"}} id="lMyProfile" to={"/"+asso.asso?.domainName+"/myprofile"} className={"tooltip"} end>
                             <img src="/icone/user.png" className="taille_icone30" alt={traduction.my_profile}></img>
                             <span className="tooltiptext">{traduction.my_profile}</span>

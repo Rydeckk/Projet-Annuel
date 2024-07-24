@@ -65,7 +65,7 @@ export function Sondage({sondage, onDelete, onSave}: SondageProps) {
 
     useEffect(() => {
         // Faire test avec ID 
-        if(listResponse.map((response) => {response.voters.find((voter) => voter.firstName.concat(voter.lastName) === user.user?.firstname.concat(user.user.lastname))})) {
+        if(listResponse.map((response) => {response.voters.find((voter) => voter.id === user.user?.id)})) {
             setIsEnabledSubmit(false)
         }
     }, [user.user])
